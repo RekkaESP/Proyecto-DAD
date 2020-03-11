@@ -560,3 +560,36 @@
 2020-03-11 13:18:10,456 [Worker-23: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\crina\Documents\GitHub\Proyecto-DAD\sunbot\src\main\resources
 2020-03-11 13:18:10,458 [Worker-23: Building] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
 2020-03-11 13:18:10,465 [Worker-23: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - skip non existing resourceDirectory C:\Users\crina\Documents\GitHub\Proyecto-DAD\sunbot\src\test\resources
+2020-03-11 13:23:45,918 [Worker-34: Creating project "sunbot"] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: dad.us:sunbot:0.0.1-SNAPSHOT @ C:\Users\crina\Documents\GitHub\Proyecto-DAD\sunbot\pom.xml.
+2020-03-11 13:23:46,110 [Worker-34: Creating project "sunbot"] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /sunbot/src/main/java
+2020-03-11 13:23:46,112 [Worker-34: Creating project "sunbot"] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /sunbot/src/main/resources
+2020-03-11 13:23:46,112 [Worker-34: Creating project "sunbot"] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /sunbot/src/test/java
+2020-03-11 13:23:46,112 [Worker-34: Creating project "sunbot"] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /sunbot/src/test/resources
+2020-03-11 13:23:46,593 [Worker-22: Building] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+2020-03-11 13:23:46,603 [Worker-22: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2020-03-11 13:23:46,605 [Worker-22: Building] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+2020-03-11 13:23:46,612 [Worker-22: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2020-03-11 13:24:00,022 [Worker-37: Building] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: dad.us:sunbot:0.0.1 @ C:\Users\crina\Documents\GitHub\Proyecto-DAD\sunbot\pom.xml.
+2020-03-11 13:24:00,392 [Worker-37: Building] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+2020-03-11 13:24:00,401 [Worker-37: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2020-03-11 13:24:00,402 [Worker-37: Building] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+2020-03-11 13:24:00,409 [Worker-37: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2020-03-11 13:24:01,628 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloading https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0-sources.jar
+2020-03-11 13:24:01,708 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloaded https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0-sources.jar
+2020-03-11 13:24:01,957 [Worker-37: Download sources and javadoc] INFO  o.e.m.j.internal.DownloadSourcesJob - Downloaded sources for com.fasterxml.jackson.core:jackson-annotations:2.9.0
+2020-03-11 13:24:02,055 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloading https://repo.maven.apache.org/maven2/io/vertx/vertx-web/3.8.5/vertx-web-3.8.5-sources.jar
+2020-03-11 13:24:02,492 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloaded https://repo.maven.apache.org/maven2/io/vertx/vertx-web/3.8.5/vertx-web-3.8.5-sources.jar
+2020-03-11 13:24:02,622 [Worker-37: Download sources and javadoc] INFO  o.e.m.j.internal.DownloadSourcesJob - Downloaded sources for io.vertx:vertx-web:3.8.5
+2020-03-11 13:24:03,133 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloading https://repo.maven.apache.org/maven2/io/vertx/vertx-web-common/3.8.5/vertx-web-common-3.8.5-sources.jar
+2020-03-11 13:24:03,425 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloaded https://repo.maven.apache.org/maven2/io/vertx/vertx-web-common/3.8.5/vertx-web-common-3.8.5-sources.jar
+2020-03-11 13:24:03,494 [Worker-37: Download sources and javadoc] INFO  o.e.m.j.internal.DownloadSourcesJob - Downloaded sources for io.vertx:vertx-web-common:3.8.5
+2020-03-11 13:24:03,587 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloading https://repo.maven.apache.org/maven2/io/vertx/vertx-auth-common/3.8.5/vertx-auth-common-3.8.5-sources.jar
+2020-03-11 13:24:04,004 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloaded https://repo.maven.apache.org/maven2/io/vertx/vertx-auth-common/3.8.5/vertx-auth-common-3.8.5-sources.jar
+2020-03-11 13:24:04,075 [Worker-37: Download sources and javadoc] INFO  o.e.m.j.internal.DownloadSourcesJob - Downloaded sources for io.vertx:vertx-auth-common:3.8.5
+2020-03-11 13:24:04,169 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloading https://repo.maven.apache.org/maven2/io/vertx/vertx-bridge-common/3.8.5/vertx-bridge-common-3.8.5-sources.jar
+2020-03-11 13:24:04,274 [Worker-37: Download sources and javadoc] INFO  o.e.m.c.i.e.AbstractTransferListenerAdapter - Downloaded https://repo.maven.apache.org/maven2/io/vertx/vertx-bridge-common/3.8.5/vertx-bridge-common-3.8.5-sources.jar
+2020-03-11 13:24:04,367 [Worker-37: Download sources and javadoc] INFO  o.e.m.j.internal.DownloadSourcesJob - Downloaded sources for io.vertx:vertx-bridge-common:3.8.5
+2020-03-11 13:24:04,570 [Worker-37: Building] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+2020-03-11 13:24:04,577 [Worker-37: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource
+2020-03-11 13:24:04,579 [Worker-37: Building] WARN  o.e.m.c.i.embedder.EclipseLogger - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+2020-03-11 13:24:04,587 [Worker-37: Building] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 0 resource

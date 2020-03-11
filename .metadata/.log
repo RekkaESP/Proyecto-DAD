@@ -94,3 +94,35 @@ java.lang.Exception: A resource exists with a different case: '/sunbot'.
 	at org.eclipse.m2e.core.ui.internal.wizards.AbstractCreateMavenProjectJob.runInWorkspace(AbstractCreateMavenProjectJob.java:69)
 	at org.eclipse.core.internal.resources.InternalWorkspaceJob.run(InternalWorkspaceJob.java:42)
 	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+
+!ENTRY org.eclipse.core.resources 4 77 2020-03-11 13:22:29.541
+!MESSAGE Invalid project description.
+!SUBENTRY 1 unknown 0 0 2020-03-11 13:22:29.541
+!MESSAGE OK
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2020-03-11 13:22:29.541
+!MESSAGE C:\Users\crina\Documents\GitHub\Proyecto-DAD overlaps the workspace location: C:\Users\crina\Documents\GitHub\Proyecto-DAD
+
+!ENTRY org.eclipse.core.resources 4 77 2020-03-11 13:23:11.247
+!MESSAGE Invalid project description.
+!SUBENTRY 1 unknown 0 0 2020-03-11 13:23:11.247
+!MESSAGE OK
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2020-03-11 13:23:11.247
+!MESSAGE C:\Users\crina\Documents\GitHub\Proyecto-DAD overlaps the workspace location: C:\Users\crina\Documents\GitHub\Proyecto-DAD
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2020-03-11 13:23:46.593
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2020-03-11 13:23:46.606
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2020-03-11 13:24:00.392
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2020-03-11 13:24:00.403
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2020-03-11 13:24:04.571
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2020-03-11 13:24:04.580
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
