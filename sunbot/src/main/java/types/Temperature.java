@@ -1,5 +1,9 @@
+package types;
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Temperature {
 	private static final AtomicInteger COUNTER = new AtomicInteger();
