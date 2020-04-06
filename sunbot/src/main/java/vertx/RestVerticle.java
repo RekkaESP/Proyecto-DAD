@@ -49,7 +49,7 @@ public class RestVerticle extends AbstractVerticle {
 		Humidity h = new Humidity(75);
 		humidities.put(h.getId(), h);
 		
-		Temperature t = new Temperature(25);
+		Temperature t = new Temperature(26);
 		temperatures.put(t.getId(), t);
 		
 		Luminosity l = new Luminosity(640);
