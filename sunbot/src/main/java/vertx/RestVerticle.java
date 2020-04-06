@@ -24,9 +24,10 @@ public class RestVerticle extends AbstractVerticle {
 	@Override
 	public void start(Future<Void> startFuture) {
 		createSomeData();
+		System.out.println("Datos creados.");
 		Router router = Router.router(vertx);
 		vertx.createHttpServer().requestHandler(router::accept).listen(8090, result->{});
-		router.route("/api/sensors*").handler(BodyHandler.create());
+		router.route("/api/sensors").handler(this::getAllData);
 		/*Humidity*/
 		router.get("/api/humidity").handler(this::getAllHumidities);
 		router.put("/api/humidity").handler(this::addOneHumidity);
@@ -47,6 +48,17 @@ public class RestVerticle extends AbstractVerticle {
 	private void createSomeData() {
 		Humidity h = new Humidity(75);
 		humidities.put(h.getId(), h);
+		
+		Temperature t = new Temperature(25);
+		temperatures.put(t.getId(), t);
+		
+		Luminosity l = new Luminosity(640);
+		luminosities.put(l.getId(), l);
+	}
+	
+	private void getAllData(RoutingContext routingContext) {
+		routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+		.end(Json.encodePrettily(humidities.values())+"\n\n"+Json.encodePrettily(temperatures.values())+"\n\n"+Json.encodePrettily(luminosities.values()));
 	}
 	////////////
 	/*Humidity*/
