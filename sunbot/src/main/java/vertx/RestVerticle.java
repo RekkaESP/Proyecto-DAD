@@ -5,6 +5,7 @@ import types.Humidity;
 import types.Luminosity;
 import types.BotActions;
 
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ public class RestVerticle extends AbstractVerticle {
 	
 	@Override
 	public void start(Future<Void> startFuture) {
+		createSomeData();
 		Router router = Router.router(vertx);
 		vertx.createHttpServer().requestHandler(router::accept).listen(8090, result->{});
 		router.route("/api/sensors*").handler(BodyHandler.create());
@@ -41,11 +43,17 @@ public class RestVerticle extends AbstractVerticle {
 		router.delete("/api/luminosity").handler(this::deleteOneLuminosity);		
 		router.post("/api/luminosity").handler(this::postOneLuminosity);
 	}
+	
+	private void createSomeData() {
+		Humidity h = new Humidity(75);
+		humidities.put(h.getId(), h);
+	}
 	////////////
 	/*Humidity*/
 	////////////
 	private void getAllHumidities(RoutingContext routingContext) {
-		
+		routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+		.end(Json.encodePrettily(humidities.values()));
 	}
 	private void addOneHumidity(RoutingContext routingContext) {
 		
