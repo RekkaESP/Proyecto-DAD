@@ -68,43 +68,82 @@ public class RestVerticle extends AbstractVerticle {
 		.end(Json.encodePrettily(humidities.values()));
 	}
 	private void addOneHumidity(RoutingContext routingContext) {
-		
+		final Humidity hum = Json.decodeValue(routingContext.getBodyAsString(), Humidity.class);
+		humidities.put(hum.getId(), hum);
+		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+				.end(Json.encodePrettily(humidities));
 	}
 	private void deleteOneHumidity(RoutingContext routingContext) {
-		
+		final Humidity hum = Json.decodeValue(routingContext.getBodyAsString(), Humidity.class);
+		humidities.remove(hum.getId());
+		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+				.end(Json.encodePrettily(humidities));
 	}
 	private void postOneHumidity(RoutingContext routingContext) {
-		
+		int id = Integer.parseInt(routingContext.request().getParam("elementid"));
+		Humidity new_hum = humidities.get(id);
+		final Humidity hum = Json.decodeValue(routingContext.getBodyAsString(), Humidity.class);
+		new_hum.setHumidityLevel(hum.getHumidityLevel());
+		new_hum.setTimestamp(hum.getTimestamp());
+		humidities.put(hum.getId(), hum);
+		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+				.end(Json.encode(humidities));
 	}
 	///////////////
 	/*Temperature*/
 	///////////////
 	private void getAllTemperatures(RoutingContext routingContext) {
-		
-	}
-	private void addOneTemperature(RoutingContext routingContext) {
-		
-	}
-	private void deleteOneTemperature(RoutingContext routingContext) {
-		
-	}
-	private void postOneTemperature(RoutingContext routingContext) {
-		
-	}
+        routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+        .end(Json.encodePrettily(temperatures.values()));
+    }
+    private void addOneTemperature(RoutingContext routingContext) {
+        final Temperature temp = Json.decodeValue(routingContext.getBodyAsString(), Temperature.class);
+        temperatures.put(temp.getId(), temp);
+        routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(temp));
+    }
+    private void deleteOneTemperature(RoutingContext routingContext) {
+        final Temperature temp = Json.decodeValue(routingContext.getBodyAsString(), Temperature.class);
+        temperatures.remove(temp.getId());
+        routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(temp));
+    }
+    private void postOneTemperature(RoutingContext routingContext) {
+        int id = Integer.parseInt(routingContext.request().getParam("tempId"));
+        Temperature new_temp = temperatures.get(id);
+        final Temperature temp = Json.decodeValue(routingContext.getBodyAsString(), Temperature.class);
+        new_temp.setTemperatureLevel(temp.getTemperatureLevel());
+        new_temp.setTimestamp(temp.getTimestamp());
+        temperatures.put(new_temp.getId(), new_temp);
+        routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8").end(Json.encode(temp));
+    }
 	//////////////
 	/*Luminosity*/
 	//////////////
 	private void getAllLuminosities(RoutingContext routingContext) {
-		
+		routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+        .end(Json.encodePrettily(luminosities.values()));
 	}
 	private void addOneLuminosity(RoutingContext routingContext) {
-		
+		final Luminosity lum = Json.decodeValue(routingContext.getBodyAsString(), Luminosity.class);
+        luminosities.put(lum.getId(), lum);
+        routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(lum));
 	}
 	private void deleteOneLuminosity(RoutingContext routingContext) {
-		
+		final Luminosity lum = Json.decodeValue(routingContext.getBodyAsString(), Luminosity.class);
+        luminosities.remove(lum.getId());
+        routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(lum));
 	}
 	private void postOneLuminosity(RoutingContext routingContext) {
-		
+		int id = Integer.parseInt(routingContext.request().getParam("tempId"));
+        Luminosity new_lum = luminosities.get(id);
+        final Luminosity lum = Json.decodeValue(routingContext.getBodyAsString(), Luminosity.class);
+        new_lum.setLuminosityLevel(lum.getLuminosityLevel());
+        new_lum.setTimestamp(lum.getTimestamp());
+        luminosities.put(new_lum.getId(), new_lum);
+        routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8").end(Json.encode(lum));
 	}
 	
 	public void stop(Future<Void> stopFuture) throws Exception{
