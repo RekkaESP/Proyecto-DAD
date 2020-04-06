@@ -24,11 +24,19 @@ public class RestVerticle extends AbstractVerticle {
 	public void start(Future<Void> startFuture) {
 		Router router = Router.router(vertx);
 		vertx.createHttpServer().requestHandler(router::accept).listen(8090, result->{});
-		router.route("/api/elements*").handler(BodyHandler.create());
-		router.get("/api/elements").handler(this::getAll);
-		router.put("/api/elements").handler(this::addOne);
-		router.delete("/api/elements").handler(this::deleteOne);
-		router.post("/api/elements").handler(this::postOne);
+		router.route("/api/sensors*").handler(BodyHandler.create());
+		router.get("/api/humidity").handler(this::getAllHumidities);
+		router.get("/api/temperature").handler(this::getAllTemperatures);
+		router.get("/api/luminosity").handler(this::getAllLuminosities);
+		router.put("/api/humidity").handler(this::addOneHumidity);
+		router.put("/api/temperature").handler(this::addOneTemperature);
+		router.put("/api/luminosity").handler(this::addOneLuminosity);
+		router.delete("/api/humidity").handler(this::deleteOneHumidity);
+		router.delete("/api/temperature").handler(this::deleteOneTemperature);
+		router.delete("/api/luminosity").handler(this::deleteOneLuminosity);
+		router.post("/api/humidity").handler(this::postOneHumidity);
+		router.post("/api/temperature").handler(this::postOneTemperature);
+		router.post("/api/luminosity").handler(this::postOneLuminosity);
 	}
 	private void getAll(RoutingContext routingContext) {
 		
