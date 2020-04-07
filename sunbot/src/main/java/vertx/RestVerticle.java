@@ -68,7 +68,20 @@ public class RestVerticle extends AbstractVerticle {
 	}
 	private void addOneSensorValue(RoutingContext routingContext) {
 		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
-		sensorvalues.put(senval.getIdsensor_value(), senval);
+		mySQLPool.query("INSERT INTO sensor_value(idsensor_value,idsensor,value,accuracy,timestamp) VALUES("+
+		routingContext.request().getParam("idSensor") + "," + ), 
+		res -> {
+			if (res.succeeded()) {
+				RowSet<Row> resultSet = res.result();
+				JsonArray result = new JsonArray();
+				for (Row row : resultSet) {
+					result.add(JsonObject.mapFrom(new SensorValue(
+							row.getInteger("idsensor_value"),
+							row.getInteger("idsensor"),
+							row.getFloat("value"),
+							row.getFloat("accuracy"),
+							row.getLong("timestamp"))));
+				}
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
 				.end(Json.encodePrettily(sensorvalues));
 	}
