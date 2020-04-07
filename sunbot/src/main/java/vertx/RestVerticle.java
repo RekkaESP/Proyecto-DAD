@@ -13,13 +13,20 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.mysqlclient.MySQLConnectOptions;
+import io.vertx.mysqlclient.MySQLPool;
+import io.vertx.sqlclient.PoolOptions;
 
 public class RestVerticle extends AbstractVerticle {
 	
 	private Map<Integer, SensorValue> sensorvalues = new LinkedHashMap<>();
-
+	private MySQLPool mySQLPool;
 	@Override
 	public void start(Future<Void> startFuture) {
+		MySQLConnectOptions mySQLConnectOptions = new MySQLConnectOptions().setPort(3306).setHost("localhost")
+				.setDatabase("dad_sunbot").setUser("root").setPassword("1234");
+		PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
+		mySQLPool = MySQLPool.pool(vertx, mySQLConnectOptions, poolOptions);
 		createSomeData();
 		System.out.println("Datos creados.");
 		Router router = Router.router(vertx);
