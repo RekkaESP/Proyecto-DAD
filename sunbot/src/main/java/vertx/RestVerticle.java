@@ -1,7 +1,7 @@
 package vertx;
 
 import types.Temperature;
-import types.Humidity;
+import types.SensorValue;
 import types.Luminosity;
 import types.BotActions;
 
@@ -18,7 +18,7 @@ import io.vertx.ext.web.handler.BodyHandler;
 
 public class RestVerticle extends AbstractVerticle {
 	private Map<Integer, Temperature> temperatures = new LinkedHashMap<>();
-	private Map<Integer, Humidity> humidities = new LinkedHashMap<>();
+	private Map<Integer, SensorValue> humidities = new LinkedHashMap<>();
 	private Map<Integer, Luminosity> luminosities = new LinkedHashMap<>();
 	
 	@Override
@@ -46,7 +46,7 @@ public class RestVerticle extends AbstractVerticle {
 	}
 	
 	private void createSomeData() {
-		Humidity h = new Humidity(75, 8);
+		SensorValue h = new SensorValue(75, 8);
 		humidities.put(h.getId(), h);
 		
 		Temperature t = new Temperature(26);
@@ -68,21 +68,21 @@ public class RestVerticle extends AbstractVerticle {
 		.end(Json.encodePrettily(humidities.values()));
 	}
 	private void addOneHumidity(RoutingContext routingContext) {
-		final Humidity hum = Json.decodeValue(routingContext.getBodyAsString(), Humidity.class);
+		final SensorValue hum = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
 		humidities.put(hum.getId(), hum);
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
 				.end(Json.encodePrettily(humidities));
 	}
 	private void deleteOneHumidity(RoutingContext routingContext) {
-		final Humidity hum = Json.decodeValue(routingContext.getBodyAsString(), Humidity.class);
+		final SensorValue hum = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
 		humidities.remove(hum.getId());
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
 				.end(Json.encodePrettily(humidities));
 	}
 	private void postOneHumidity(RoutingContext routingContext) {
 		int id = Integer.parseInt(routingContext.request().getParam("elementid"));
-		Humidity new_hum = humidities.get(id);
-		final Humidity hum = Json.decodeValue(routingContext.getBodyAsString(), Humidity.class);
+		SensorValue new_hum = humidities.get(id);
+		final SensorValue hum = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
 		new_hum.setHumidityLevel(hum.getHumidityLevel());
 		new_hum.setTimestamp(hum.getTimestamp());
 		humidities.put(hum.getId(), hum);

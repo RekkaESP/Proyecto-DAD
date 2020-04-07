@@ -5,36 +5,49 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Humidity {
+public class SensorValue {
 	private static final AtomicInteger COUNTER = new AtomicInteger();
+	private enum Type{Humidity, Temperature, Luminosity};
+	private Type type;
 	private int id;
-	private float humidityLevel;
+	private float value;
 	private float accuracy;
 	private long timestamp;
 	
 	@JsonCreator
-	public Humidity(@JsonProperty("humidityLevel") float humidityLevel, @JsonProperty("accuracy") float accuracy, @JsonProperty("timestamp") long timestamp) {
+	public SensorValue(@JsonProperty("type") Type type, @JsonProperty("value") float value, @JsonProperty("accuracy") float accuracy, @JsonProperty("timestamp") long timestamp) {
 		super();
+		this.type = type;
 		this.id = COUNTER.getAndIncrement();
-		this.humidityLevel = humidityLevel;
+		this.value = value;
 		this.accuracy = accuracy;
 		this.timestamp = timestamp;
 	}
 	
-	public Humidity(@JsonProperty("humidityLevel") float humidityLevel, @JsonProperty("accuracy") float accuracy) {
+	public SensorValue(@JsonProperty("type") Type type, @JsonProperty("value") float value, @JsonProperty("accuracy") float accuracy) {
 		super();
+		this.type = type;
 		this.id = COUNTER.getAndIncrement();
-		this.humidityLevel = humidityLevel;
+		this.value = value;
 		this.accuracy = accuracy;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 	
-	public Humidity() {
+	public SensorValue(@JsonProperty("type") Type type) {
 		super();
+		this.type = type;
 		this.id = COUNTER.getAndIncrement();
-		this.humidityLevel = 0;
+		this.value = 0;
 		this.accuracy = 0;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
+	}
+	
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
 	}
 
 	public int getId() {
@@ -45,12 +58,12 @@ public class Humidity {
 		this.id = id;
 	}
 
-	public float getHumidityLevel() {
-		return humidityLevel;
+	public float getValue() {
+		return value;
 	}
 
-	public void setHumidityLevel(float humidityLevel) {
-		this.humidityLevel = humidityLevel;
+	public void setValue(float value) {
+		this.value = value;
 	}
 	
 	public float getAccuracy() {
@@ -74,9 +87,10 @@ public class Humidity {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Float.floatToIntBits(accuracy);
-		result = prime * result + Float.floatToIntBits(humidityLevel);
 		result = prime * result + id;
 		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + Float.floatToIntBits(value);
 		return result;
 	}
 
@@ -88,21 +102,26 @@ public class Humidity {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Humidity other = (Humidity) obj;
+		SensorValue other = (SensorValue) obj;
 		if (Float.floatToIntBits(accuracy) != Float.floatToIntBits(other.accuracy))
-			return false;
-		if (Float.floatToIntBits(humidityLevel) != Float.floatToIntBits(other.humidityLevel))
 			return false;
 		if (id != other.id)
 			return false;
 		if (timestamp != other.timestamp)
+			return false;
+		if (type != other.type)
+			return false;
+		if (Float.floatToIntBits(value) != Float.floatToIntBits(other.value))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Humidity [id=" + id + ", humidityLevel=" + humidityLevel + ", accuracy=" + accuracy + ", timestamp="
-				+ timestamp + "]";
-	}	
+		return "SensorValue [type=" + type + ", id=" + id + ", value=" + value + ", accuracy=" + accuracy
+				+ ", timestamp=" + timestamp + "]";
+	}
+	
+	
+	
 }
