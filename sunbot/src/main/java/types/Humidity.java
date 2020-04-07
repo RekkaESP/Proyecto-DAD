@@ -9,20 +9,23 @@ public class Humidity {
 	private static final AtomicInteger COUNTER = new AtomicInteger();
 	private int id;
 	private float humidityLevel;
+	private float accuracy;
 	private long timestamp;
 	
 	@JsonCreator
-	public Humidity(@JsonProperty("humidityLevel") float humidityLevel,@JsonProperty("timestamp") long timestamp) {
+	public Humidity(@JsonProperty("humidityLevel") float humidityLevel, @JsonProperty("accuracy") float accuracy, @JsonProperty("timestamp") long timestamp) {
 		super();
 		this.id = COUNTER.getAndIncrement();
 		this.humidityLevel = humidityLevel;
+		this.accuracy = accuracy;
 		this.timestamp = timestamp;
 	}
 	
-	public Humidity(@JsonProperty("humidityLevel") float humidityLevel) {
+	public Humidity(@JsonProperty("humidityLevel") float humidityLevel, @JsonProperty("accuracy") float accuracy) {
 		super();
 		this.id = COUNTER.getAndIncrement();
 		this.humidityLevel = humidityLevel;
+		this.accuracy = accuracy;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 	
@@ -30,6 +33,7 @@ public class Humidity {
 		super();
 		this.id = COUNTER.getAndIncrement();
 		this.humidityLevel = 0;
+		this.accuracy = 0;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 
@@ -48,6 +52,14 @@ public class Humidity {
 	public void setHumidityLevel(float humidityLevel) {
 		this.humidityLevel = humidityLevel;
 	}
+	
+	public float getAccuracy() {
+		return accuracy;
+	}
+
+	public void setAccuracy(float accuracy) {
+		this.accuracy = accuracy;
+	}
 
 	public long getTimestamp() {
 		return timestamp;
@@ -61,6 +73,7 @@ public class Humidity {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + Float.floatToIntBits(accuracy);
 		result = prime * result + Float.floatToIntBits(humidityLevel);
 		result = prime * result + id;
 		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
@@ -76,6 +89,8 @@ public class Humidity {
 		if (getClass() != obj.getClass())
 			return false;
 		Humidity other = (Humidity) obj;
+		if (Float.floatToIntBits(accuracy) != Float.floatToIntBits(other.accuracy))
+			return false;
 		if (Float.floatToIntBits(humidityLevel) != Float.floatToIntBits(other.humidityLevel))
 			return false;
 		if (id != other.id)
@@ -87,8 +102,7 @@ public class Humidity {
 
 	@Override
 	public String toString() {
-		return "Humidity [id=" + id + ", humidityLevel=" + humidityLevel + ", timestamp=" + timestamp + "]";
-	}
-	
-	
+		return "Humidity [id=" + id + ", humidityLevel=" + humidityLevel + ", accuracy=" + accuracy + ", timestamp="
+				+ timestamp + "]";
+	}	
 }
