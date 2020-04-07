@@ -1,9 +1,5 @@
 package vertx;
 
-import types.SensorValue;
-import types.BotActions;
-
-import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,17 +10,18 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.mysqlclient.MySQLConnectOptions;
 import io.vertx.mysqlclient.MySQLPool;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
+import types.SensorValue;
 
 public class RestVerticle extends AbstractVerticle {
 	
 	private Map<Integer, SensorValue> sensorvalues = new LinkedHashMap<>();
 	private MySQLPool mySQLPool;
+	@SuppressWarnings("deprecation")
 	@Override
 	public void start(Future<Void> startFuture) {
 		MySQLConnectOptions mySQLConnectOptions = new MySQLConnectOptions().setPort(3306).setHost("localhost")
@@ -47,7 +44,7 @@ public class RestVerticle extends AbstractVerticle {
 	////////////////
 	private void getSensorValues(RoutingContext routingContext) {
 		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor = " + 
-				routingContext.request().getParam("idSensor"), 
+				routingContext.request().getParam("sensorId"), 
 		res -> {
 			if (res.succeeded()) {
 				RowSet<Row> resultSet = res.result();
@@ -67,7 +64,7 @@ public class RestVerticle extends AbstractVerticle {
 		});
 	}
 	private void addOneSensorValue(RoutingContext routingContext) {
-		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
+		/*final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
 		mySQLPool.query("INSERT INTO sensor_value(idsensor_value,idsensor,value,accuracy,timestamp) VALUES("+
 		routingContext.request().getParam("idSensor") + "," + ), 
 		res -> {
@@ -84,6 +81,8 @@ public class RestVerticle extends AbstractVerticle {
 				}
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
 				.end(Json.encodePrettily(sensorvalues));
+			}
+		});*/
 	}
 	private void deleteOneSensorValue(RoutingContext routingContext) {
 		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
