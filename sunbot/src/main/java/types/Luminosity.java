@@ -11,19 +11,22 @@ public class Luminosity {
 	private int id;
 	private float luminosityLevel;
 	private long timestamp;
+	private float accuracy;
 	
 	@JsonCreator
-	public Luminosity(@JsonProperty("luminosityLevel") float luminosityLevel,@JsonProperty("timestamp") long timestamp) {
+	public Luminosity(@JsonProperty("luminosityLevel") float luminosityLevel,@JsonProperty("timestamp") long timestamp, @JsonProperty("accuracy") float accuracy) {
 		super();
 		this.id = COUNTER.getAndIncrement();
 		this.luminosityLevel = luminosityLevel;
+		this.accuracy = accuracy;
 		this.timestamp = timestamp;
 	}
 	
-	public Luminosity(@JsonProperty("luminosityLevel") float luminosityLevel) {
+	public Luminosity(@JsonProperty("luminosityLevel") float luminosityLevel, @JsonProperty("accuracy") float accuracy) {
 		super();
 		this.id = COUNTER.getAndIncrement();
 		this.luminosityLevel = luminosityLevel;
+		this.accuracy = accuracy;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 	
@@ -31,7 +34,16 @@ public class Luminosity {
 		super();
 		this.id = COUNTER.getAndIncrement();
 		this.luminosityLevel = 0;
+		this.accuracy = 0;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
+	}
+
+	public float getAccuracy() {
+		return accuracy;
+	}
+
+	public void setAccuracy(float accuracy) {
+		this.accuracy = accuracy;
 	}
 
 	public int getId() {

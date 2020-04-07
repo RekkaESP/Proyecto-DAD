@@ -9,20 +9,23 @@ public class Temperature {
 	private static final AtomicInteger COUNTER = new AtomicInteger();
 	private int id;
 	private float temperatureLevel;
+	private float accuracy;
 	private long timestamp;
 	
 	@JsonCreator
-	public Temperature(@JsonProperty("temperatureLevel") float temperatureLevel,@JsonProperty("timestamp") long timestamp) {
+	public Temperature(@JsonProperty("temperatureLevel") float temperatureLevel,@JsonProperty("accuracy") float accuracy,@JsonProperty("timestamp") long timestamp) {
 		super();
 		this.id = COUNTER.getAndIncrement();
 		this.temperatureLevel = temperatureLevel;
+		this.accuracy = accuracy;
 		this.timestamp = timestamp;
 	}
 	
-	public Temperature(@JsonProperty("temperatureLevel") float temperatureLevel) {
+	public Temperature(@JsonProperty("temperatureLevel") float temperatureLevel,@JsonProperty("accuracy") float accuracy) {
 		super();
 		this.id = COUNTER.getAndIncrement();
 		this.temperatureLevel = temperatureLevel;
+		this.accuracy = accuracy;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 	
@@ -30,7 +33,16 @@ public class Temperature {
 		super();
 		this.id = COUNTER.getAndIncrement();
 		this.temperatureLevel = 0;
+		this.accuracy = 0;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
+	}
+
+	public float getAccuracy() {
+		return accuracy;
+	}
+
+	public void setAccuracy(float accuracy) {
+		this.accuracy = accuracy;
 	}
 
 	public int getId() {
