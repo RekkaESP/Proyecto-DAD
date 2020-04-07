@@ -7,55 +7,76 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SensorValue {
 	private static final AtomicInteger COUNTER = new AtomicInteger();
-	private enum Type{Humidity, Temperature, Luminosity};
-	private Type type;
-	private int id;
+	private int idsensor_value;
+	private int idsensor;
 	private float value;
 	private float accuracy;
 	private long timestamp;
 	
 	@JsonCreator
-	public SensorValue(@JsonProperty("type") Type type, @JsonProperty("value") float value, @JsonProperty("accuracy") float accuracy, @JsonProperty("timestamp") long timestamp) {
+	public SensorValue(@JsonProperty("idsensor_value") int idsensor_value, @JsonProperty("idsensor") int idsensor, @JsonProperty("value") float value, @JsonProperty("accuracy") float accuracy, @JsonProperty("timestamp") long timestamp) {
 		super();
-		this.type = type;
-		this.id = COUNTER.getAndIncrement();
+		this.idsensor_value = idsensor_value;
+		this.idsensor = idsensor;
 		this.value = value;
 		this.accuracy = accuracy;
 		this.timestamp = timestamp;
 	}
 	
-	public SensorValue(@JsonProperty("type") Type type, @JsonProperty("value") float value, @JsonProperty("accuracy") float accuracy) {
+	@JsonCreator
+	public SensorValue(@JsonProperty("idsensor") int idsensor, @JsonProperty("value") float value, @JsonProperty("accuracy") float accuracy, @JsonProperty("timestamp") long timestamp) {
 		super();
-		this.type = type;
-		this.id = COUNTER.getAndIncrement();
+		this.idsensor_value = COUNTER.getAndIncrement();
+		this.idsensor = idsensor;
+		this.value = value;
+		this.accuracy = accuracy;
+		this.timestamp = timestamp;
+	}
+	
+	@JsonCreator
+	public SensorValue(@JsonProperty("idsensor") int idsensor, @JsonProperty("value") float value, @JsonProperty("accuracy") float accuracy) {
+		super();
+		this.idsensor_value = COUNTER.getAndIncrement();
+		this.idsensor = idsensor;
 		this.value = value;
 		this.accuracy = accuracy;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 	
-	public SensorValue(@JsonProperty("type") Type type) {
+	@JsonCreator
+	public SensorValue(@JsonProperty("idsensor") int idsensor) {
 		super();
-		this.type = type;
-		this.id = COUNTER.getAndIncrement();
+		this.idsensor_value = COUNTER.getAndIncrement();
+		this.idsensor = idsensor;
 		this.value = 0;
 		this.accuracy = 0;
 		this.timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 	
-	public Type getType() {
-		return type;
+	@JsonCreator
+	public SensorValue() {
+		super();
+		this.idsensor_value = COUNTER.getAndIncrement();
+		this.idsensor = 0;
+		this.value = 0;
+		this.accuracy = 0;
+		this.timestamp = Calendar.getInstance().getTimeInMillis();
 	}
 
-	public void setType(Type type) {
-		this.type = type;
+	public int getIdsensor_value() {
+		return idsensor_value;
 	}
 
-	public int getId() {
-		return id;
+	public void setIdsensor_value(int idsensor_value) {
+		this.idsensor_value = idsensor_value;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public int getIdsensor() {
+		return idsensor;
+	}
+
+	public void setIdsensor(int idsensor) {
+		this.idsensor = idsensor;
 	}
 
 	public float getValue() {
@@ -65,7 +86,7 @@ public class SensorValue {
 	public void setValue(float value) {
 		this.value = value;
 	}
-	
+
 	public float getAccuracy() {
 		return accuracy;
 	}
@@ -87,9 +108,9 @@ public class SensorValue {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Float.floatToIntBits(accuracy);
-		result = prime * result + id;
+		result = prime * result + idsensor;
+		result = prime * result + idsensor_value;
 		result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + Float.floatToIntBits(value);
 		return result;
 	}
@@ -105,11 +126,11 @@ public class SensorValue {
 		SensorValue other = (SensorValue) obj;
 		if (Float.floatToIntBits(accuracy) != Float.floatToIntBits(other.accuracy))
 			return false;
-		if (id != other.id)
+		if (idsensor != other.idsensor)
+			return false;
+		if (idsensor_value != other.idsensor_value)
 			return false;
 		if (timestamp != other.timestamp)
-			return false;
-		if (type != other.type)
 			return false;
 		if (Float.floatToIntBits(value) != Float.floatToIntBits(other.value))
 			return false;
@@ -118,10 +139,9 @@ public class SensorValue {
 
 	@Override
 	public String toString() {
-		return "SensorValue [type=" + type + ", id=" + id + ", value=" + value + ", accuracy=" + accuracy
-				+ ", timestamp=" + timestamp + "]";
+		return "SensorValue [idsensor_value=" + idsensor_value + ", idsensor=" + idsensor + ", value=" + value
+				+ ", accuracy=" + accuracy + ", timestamp=" + timestamp + "]";
 	}
-	
 	
 	
 }

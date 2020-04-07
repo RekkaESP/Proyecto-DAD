@@ -10,12 +10,16 @@ import java.util.Map;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.mysqlclient.MySQLConnectOptions;
 import io.vertx.mysqlclient.MySQLPool;
 import io.vertx.sqlclient.PoolOptions;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 
 public class RestVerticle extends AbstractVerticle {
 	
@@ -33,15 +37,14 @@ public class RestVerticle extends AbstractVerticle {
 		vertx.createHttpServer().requestHandler(router::accept).listen(8090, result->{});
 		//router.route("/api/sensors").handler(this::getAllData);
 		/*Sensor Value*/
-		router.get("/api/humidity").handler(this::getAllSensorValue);
-		router.put("/api/humidity").handler(this::addOneSensorValue);
-		router.delete("/api/humidity").handler(this::deleteOneSensorValue);
-		router.post("/api/humidity").handler(this::postOneSensorValue);
-
+		router.get("/api/:sensorId").handler(this::getSensorValues);
+		router.put("/api/:sensorId").handler(this::addOneSensorValue);
+		router.delete("/api/:sensorId").handler(this::deleteOneSensorValue);
+		router.post("/api/:sensorId").handler(this::postOneSensorValue);
 	}
 	
 	private void createSomeData() {
-
+		
 	}
 	/*
 	private void getAllData(RoutingContext routingContext) {
@@ -52,9 +55,25 @@ public class RestVerticle extends AbstractVerticle {
 	////////////////
 	/*Sensor Value*/
 	////////////////
-	private void getAllSensorValue(RoutingContext routingContext) {
-		routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
-		.end(Json.encodePrettily(sensorvalues.values()));
+	private void getSensorValues(RoutingContext routingContext) {
+		mySQLPool.query("SELECT * FROM daddatabase.sensor_value WHERE idsensor = " + 
+				routingContext.request().getParam("idSensor"), 
+		res -> {
+			if (res.succeeded()) {
+				RowSet<Row> resultSet = res.result();
+				System.out.println("El número de elementos obtenidos es " + resultSet.size());
+				JsonArray result = new JsonArray();
+				for (Row row : resultSet) {
+					result.add(JsonObject.mapFrom(new SensorValue(
+							row.getInteger("idsensor_value"),
+							row.getInteger("idsensor"),
+							row.getFloat("value"),
+							row.getFloat("accuracy"),
+							row.getLong("timestamp"))));
+				}
+				
+				routingContext.response().setStatusCode(200).putHeader("content-type", "application/json")
+					.end(result.encodePrettily());
 	}
 	private void addOneSensorValue(RoutingContext routingContext) {
 		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
