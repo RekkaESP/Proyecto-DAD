@@ -28,11 +28,9 @@ public class RestVerticle extends AbstractVerticle {
 				.setDatabase("dad_sunbot").setUser("root").setPassword("1234");
 		PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
 		mySQLPool = MySQLPool.pool(vertx, mySQLConnectOptions, poolOptions);
-		System.out.println("Datos creados.");
 		Router router = Router.router(vertx);
 		vertx.createHttpServer().requestHandler(router::accept).listen(8090, result->{});
-		//router.route("/api/sensors").handler(this::getAllData);
-		/*Sensor Value*/
+		router.route("/api/sensors").handler(this::getAllData);
 		router.get("/api/:sensorId").handler(this::getSensorValues);
 		router.put("/api/:sensorId").handler(this::addOneSensorValue);
 		router.delete("/api/:sensorId").handler(this::deleteOneSensorValue);
@@ -42,6 +40,26 @@ public class RestVerticle extends AbstractVerticle {
 	////////////////
 	/*Sensor Value*/
 	////////////////
+	private void getAllData(RoutingContext routingContext) {
+		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value",
+		res -> {
+			if (res.succeeded()) {
+				RowSet<Row> resultSet = res.result();
+				System.out.println("El número de elementos obtenidos es " + resultSet.size());
+				JsonArray result = new JsonArray();
+				for (Row row : resultSet) {
+					result.add(JsonObject.mapFrom(new SensorValue(
+							row.getInteger("idsensor_value"),
+							row.getInteger("idsensor"),
+							row.getFloat("value"),
+							row.getFloat("accuracy"),
+							row.getLong("timestamp"))));
+				}
+				routingContext.response().setStatusCode(200).putHeader("content-type", "application/json")
+					.end(result.encodePrettily());
+			}
+		});
+	}
 	private void getSensorValues(RoutingContext routingContext) {
 		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor = " + 
 				routingContext.request().getParam("sensorId"), 
