@@ -31,7 +31,6 @@ public class RestVerticle extends AbstractVerticle {
 				.setDatabase("dad_sunbot").setUser("root").setPassword("1234");
 		PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
 		mySQLPool = MySQLPool.pool(vertx, mySQLConnectOptions, poolOptions);
-		createSomeData();
 		System.out.println("Datos creados.");
 		Router router = Router.router(vertx);
 		vertx.createHttpServer().requestHandler(router::accept).listen(8090, result->{});
@@ -43,20 +42,11 @@ public class RestVerticle extends AbstractVerticle {
 		router.post("/api/:sensorId").handler(this::postOneSensorValue);
 	}
 	
-	private void createSomeData() {
-		
-	}
-	/*
-	private void getAllData(RoutingContext routingContext) {
-		routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
-		.end(Json.encodePrettily(sensorvalues.values())+"\n\n"+Json.encodePrettily(temperatures.values())+"\n\n"+Json.encodePrettily(luminosities.values()));
-	}
-	*/
 	////////////////
 	/*Sensor Value*/
 	////////////////
 	private void getSensorValues(RoutingContext routingContext) {
-		mySQLPool.query("SELECT * FROM daddatabase.sensor_value WHERE idsensor = " + 
+		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor = " + 
 				routingContext.request().getParam("idSensor"), 
 		res -> {
 			if (res.succeeded()) {
@@ -71,19 +61,20 @@ public class RestVerticle extends AbstractVerticle {
 							row.getFloat("accuracy"),
 							row.getLong("timestamp"))));
 				}
-				
 				routingContext.response().setStatusCode(200).putHeader("content-type", "application/json")
 					.end(result.encodePrettily());
+			}
+		});
 	}
 	private void addOneSensorValue(RoutingContext routingContext) {
 		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
-		sensorvalues.put(senval.getId(), senval);
+		sensorvalues.put(senval.getIdsensor_value(), senval);
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
 				.end(Json.encodePrettily(sensorvalues));
 	}
 	private void deleteOneSensorValue(RoutingContext routingContext) {
 		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
-		sensorvalues.remove(senval.getId());
+		sensorvalues.remove(senval.getIdsensor_value());
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
 				.end(Json.encodePrettily(sensorvalues));
 	}
@@ -91,11 +82,11 @@ public class RestVerticle extends AbstractVerticle {
 		int id = Integer.parseInt(routingContext.request().getParam("elementid"));
 		SensorValue new_senval = sensorvalues.get(id);
 		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
-		new_senval.setType(senval.getType());
+		new_senval.setIdsensor(senval.getIdsensor());
 		new_senval.setValue(senval.getValue());
 		new_senval.setAccuracy(senval.getAccuracy());
 		new_senval.setTimestamp(senval.getTimestamp());
-		sensorvalues.put(senval.getId(), senval);
+		sensorvalues.put(senval.getIdsensor_value(), senval);
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
 				.end(Json.encode(sensorvalues));
 	}
