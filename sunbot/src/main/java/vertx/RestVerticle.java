@@ -35,7 +35,7 @@ public class RestVerticle extends AbstractVerticle {
 		router.route("/api/sensors").handler(this::getAllData);
 		router.get("/api/:sensorId").handler(this::getSensorValues);
 		router.put("/api/putSensorValue").handler(this::addOneSensorValue);
-		router.delete("/api/deleteSensorValue").handler(this::deleteOneSensorValue);
+		router.delete("/api/deleteSensorValue/:idsensor_value").handler(this::deleteOneSensorValue);
 		router.post("/api/postSensorValue").handler(this::postOneSensorValue);
 	}
 	
@@ -88,15 +88,7 @@ public class RestVerticle extends AbstractVerticle {
 		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor_value="+senval.getInteger("idsensor_value"), res->{
 			if(res.succeeded()) {
 				if(res.result().size()>0) {
-					mySQLPool.query("UPDATE dad_sunbot.sensor_value SET idsensor="+senval.getInteger("idsensor")+", value="+senval.getFloat("value")+", accuracy="+senval.getFloat("accuracy")+
-							", timestamp="+senval.getInteger("timestamp")+" WHERE idsensor_value="+senval.getInteger("idsensor_value"), 
-						res2 -> {
-							if (res2.succeeded()) {
-								System.out.println("Datos actualizados correctamente.");
-							}else {
-								System.out.println("Error en la actualización de los datos.");
-							}
-						});
+					System.out.println("El objeto ya existe en la base de datos.");
 				}else {
 					mySQLPool.query("INSERT INTO sensor_value(idsensor_value,idsensor,value,accuracy,timestamp) VALUES("+
 							senval.getInteger("idsensor_value") + ","+senval.getInteger("idsensor")+","+senval.getFloat("value")+","+senval.getFloat("accuracy")+","+senval.getInteger("timestamp")+")", 
@@ -114,11 +106,10 @@ public class RestVerticle extends AbstractVerticle {
 		.end();
 	}
 	private void deleteOneSensorValue(RoutingContext routingContext) {
-		JsonObject senval = routingContext.getBodyAsJson();
-		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor_value="+senval.getInteger("idsensor_value"), res->{
+		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor_value="+routingContext.request().getParam("idsensor_value"), res->{
 			if(res.succeeded()) {
 				if(res.result().size()>0) {
-					mySQLPool.query("DELETE FROM dad_sunbot.sensor_value WHERE idsensor_value="+senval.getInteger("idsensor_value"), 
+					mySQLPool.query("DELETE FROM dad_sunbot.sensor_value WHERE idsensor_value="+routingContext.request().getParam("idsensor_value"), 
 						res2 -> {
 							if (res2.succeeded()) {
 								System.out.println("Datos actualizados correctamente.");
@@ -135,16 +126,26 @@ public class RestVerticle extends AbstractVerticle {
 				.end();
 	}
 	private void postOneSensorValue(RoutingContext routingContext) {
-		int id = Integer.parseInt(routingContext.request().getParam("elementid"));
-		SensorValue new_senval = sensorvalues.get(id);
-		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
-		new_senval.setIdsensor(senval.getIdsensor());
-		new_senval.setValue(senval.getValue());
-		new_senval.setAccuracy(senval.getAccuracy());
-		new_senval.setTimestamp(senval.getTimestamp());
-		sensorvalues.put(senval.getIdsensor_value(), senval);
+		JsonObject senval = routingContext.getBodyAsJson();
+		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor_value="+senval.getInteger("idsensor_value"), res->{
+			if(res.succeeded()) {
+				if(res.result().size()>0) {
+					mySQLPool.query("UPDATE dad_sunbot.sensor_value SET idsensor="+senval.getInteger("idsensor")+", value="+senval.getFloat("value")+", accuracy="+senval.getFloat("accuracy")+
+							", timestamp="+senval.getInteger("timestamp")+" WHERE idsensor_value="+senval.getInteger("idsensor_value"), 
+							res2 -> {
+								if (res2.succeeded()) {
+									System.out.println("Datos actualizados correctamente.");
+								}else {
+									System.out.println("Error en la actualización de los datos.");
+								}
+							});
+				}else {
+					System.out.println("El objeto no existe en la base de datos.");
+				}
+			}
+		});
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end(Json.encode(sensorvalues));
+				.end();
 	}
 	public void stop(Future<Void> stopFuture) throws Exception{
 		super.stop(stopFuture);
