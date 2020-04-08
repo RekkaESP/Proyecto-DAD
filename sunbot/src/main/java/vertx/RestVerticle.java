@@ -10,6 +10,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.mysqlclient.MySQLConnectOptions;
 import io.vertx.mysqlclient.MySQLPool;
 import io.vertx.sqlclient.PoolOptions;
@@ -30,9 +31,10 @@ public class RestVerticle extends AbstractVerticle {
 		mySQLPool = MySQLPool.pool(vertx, mySQLConnectOptions, poolOptions);
 		Router router = Router.router(vertx);
 		vertx.createHttpServer().requestHandler(router::accept).listen(8090, result->{});
+		router.route("/*").handler(BodyHandler.create());
 		router.route("/api/sensors").handler(this::getAllData);
 		router.get("/api/:sensorId").handler(this::getSensorValues);
-		router.put("/api/:sensorId").handler(this::addOneSensorValue);
+		router.put("/api/putSensorValue").handler(this::addOneSensorValue);
 		router.delete("/api/:sensorId").handler(this::deleteOneSensorValue);
 		router.post("/api/:sensorId").handler(this::postOneSensorValue);
 	}
@@ -82,25 +84,36 @@ public class RestVerticle extends AbstractVerticle {
 		});
 	}
 	private void addOneSensorValue(RoutingContext routingContext) {
-		/*final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
-		mySQLPool.query("INSERT INTO sensor_value(idsensor_value,idsensor,value,accuracy,timestamp) VALUES("+
-		routingContext.request().getParam("idSensor") + "," + ), 
-		res -> {
-			if (res.succeeded()) {
-				RowSet<Row> resultSet = res.result();
-				JsonArray result = new JsonArray();
-				for (Row row : resultSet) {
-					result.add(JsonObject.mapFrom(new SensorValue(
-							row.getInteger("idsensor_value"),
-							row.getInteger("idsensor"),
-							row.getFloat("value"),
-							row.getFloat("accuracy"),
-							row.getLong("timestamp"))));
+		JsonObject senval = routingContext.getBodyAsJson();
+		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor_value="+senval.getInteger("idsensor_value"), res->{
+			if(res.succeeded()) {
+				if(res.result().size()>0) {
+					System.out.println("Existe alguno ya.");
+					mySQLPool.query("UPDATE dad_sunbot.sensor_value SET idsensor="+senval.getInteger("idsensor")+", value="+senval.getFloat("value")+", accuracy="+senval.getFloat("accuracy")+
+							", timestamp="+senval.getInteger("timestamp")+" WHERE idsensor_value="+senval.getInteger("idsensor_value"), 
+						res2 -> {
+							if (res2.succeeded()) {
+								System.out.println("Datos actualizados correctamente.");
+							}else {
+								System.out.println("Error en la actualización de los datos.");
+							}
+						});
+				}else {
+					System.out.println("No existe alguno ya.");
+					mySQLPool.query("INSERT INTO sensor_value(idsensor_value,idsensor,value,accuracy,timestamp) VALUES("+
+							senval.getInteger("idsensor_value") + ","+senval.getInteger("idsensor")+","+senval.getFloat("value")+","+senval.getFloat("accuracy")+","+senval.getInteger("timestamp")+")", 
+							res2 -> {
+								if (res2.succeeded()) {
+									System.out.println("Datos introducidos correctamente.");
+								}else {
+									System.out.println("Error al introducir los datos");
+								}
+							});
 				}
-		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end(Json.encodePrettily(sensorvalues));
 			}
-		});*/
+		});
+		routingContext.response().setStatusCode(200).putHeader("content-type", "application/json")
+		.end();
 	}
 	private void deleteOneSensorValue(RoutingContext routingContext) {
 		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
