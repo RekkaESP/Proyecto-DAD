@@ -35,8 +35,8 @@ public class RestVerticle extends AbstractVerticle {
 		router.route("/api/sensors").handler(this::getAllData);
 		router.get("/api/:sensorId").handler(this::getSensorValues);
 		router.put("/api/putSensorValue").handler(this::addOneSensorValue);
-		router.delete("/api/:sensorId").handler(this::deleteOneSensorValue);
-		router.post("/api/:sensorId").handler(this::postOneSensorValue);
+		router.delete("/api/deleteSensorValue").handler(this::deleteOneSensorValue);
+		router.post("/api/postSensorValue").handler(this::postOneSensorValue);
 	}
 	
 	////////////////
