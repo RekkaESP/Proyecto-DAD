@@ -88,7 +88,6 @@ public class RestVerticle extends AbstractVerticle {
 		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor_value="+senval.getInteger("idsensor_value"), res->{
 			if(res.succeeded()) {
 				if(res.result().size()>0) {
-					System.out.println("Existe alguno ya.");
 					mySQLPool.query("UPDATE dad_sunbot.sensor_value SET idsensor="+senval.getInteger("idsensor")+", value="+senval.getFloat("value")+", accuracy="+senval.getFloat("accuracy")+
 							", timestamp="+senval.getInteger("timestamp")+" WHERE idsensor_value="+senval.getInteger("idsensor_value"), 
 						res2 -> {
@@ -99,7 +98,6 @@ public class RestVerticle extends AbstractVerticle {
 							}
 						});
 				}else {
-					System.out.println("No existe alguno ya.");
 					mySQLPool.query("INSERT INTO sensor_value(idsensor_value,idsensor,value,accuracy,timestamp) VALUES("+
 							senval.getInteger("idsensor_value") + ","+senval.getInteger("idsensor")+","+senval.getFloat("value")+","+senval.getFloat("accuracy")+","+senval.getInteger("timestamp")+")", 
 							res2 -> {
@@ -116,10 +114,25 @@ public class RestVerticle extends AbstractVerticle {
 		.end();
 	}
 	private void deleteOneSensorValue(RoutingContext routingContext) {
-		final SensorValue senval = Json.decodeValue(routingContext.getBodyAsString(), SensorValue.class);
-		sensorvalues.remove(senval.getIdsensor_value());
+		JsonObject senval = routingContext.getBodyAsJson();
+		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor_value="+senval.getInteger("idsensor_value"), res->{
+			if(res.succeeded()) {
+				if(res.result().size()>0) {
+					mySQLPool.query("DELETE FROM dad_sunbot.sensor_value WHERE idsensor_value="+senval.getInteger("idsensor_value"), 
+						res2 -> {
+							if (res2.succeeded()) {
+								System.out.println("Datos actualizados correctamente.");
+							}else {
+								System.out.println("Error en la actualización de los datos.");
+							}
+						});
+				}else {
+					System.out.println("No existe el elemento.");
+				}
+			}
+		});
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end(Json.encodePrettily(sensorvalues));
+				.end();
 	}
 	private void postOneSensorValue(RoutingContext routingContext) {
 		int id = Integer.parseInt(routingContext.request().getParam("elementid"));
