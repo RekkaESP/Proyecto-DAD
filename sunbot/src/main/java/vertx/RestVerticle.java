@@ -37,6 +37,7 @@ public class RestVerticle extends AbstractVerticle {
 		
 		router.get("/api/motors").handler(this::getAllMotorData);
 		router.get("/api/motor/:motorId").handler(this::getMotorValues);
+		router.get("/api/getMotorValueById/:idmotor_value").handler(this::getMotorValueById);
 		router.put("/api/putMotorValue").handler(this::addOneMotorValue);
 		router.delete("/api/deleteMotorValue/:idmotor_value").handler(this::deleteOneMotorValue);
 		router.post("/api/postMotorValue").handler(this::postOneMotorValue);
@@ -128,7 +129,7 @@ public class RestVerticle extends AbstractVerticle {
 			}
 		});
 		routingContext.response().setStatusCode(200).putHeader("content-type", "application/json")
-		.end();
+		.end("Petición PUT ejecutada correctamente.");
 	}
 	private void deleteOneSensorValue(RoutingContext routingContext) {
 		mySQLPool.query("SELECT * FROM dad_sunbot.sensor_value WHERE idsensor_value="+routingContext.request().getParam("idsensor_value"), res->{
@@ -148,7 +149,7 @@ public class RestVerticle extends AbstractVerticle {
 			}
 		});
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end();
+				.end("Petición DELETE ejecutada correctamente.");
 	}
 	private void postOneSensorValue(RoutingContext routingContext) {
 		JsonObject senval = routingContext.getBodyAsJson();
@@ -170,7 +171,7 @@ public class RestVerticle extends AbstractVerticle {
 			}
 		});
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end();
+				.end("Petición POST ejecutada correctamente.");
 	}
 	
 	
@@ -216,6 +217,27 @@ public class RestVerticle extends AbstractVerticle {
 			}
 		});
 	}
+	
+	private void getMotorValueById(RoutingContext routingContext) {
+		mySQLPool.query("SELECT * FROM dad_sunbot.motor_value WHERE idmotor_value = " + 
+				routingContext.request().getParam("idmotor_value"), 
+		res -> {
+			if (res.succeeded()) {
+				RowSet<Row> resultSet = res.result();
+				JsonArray result = new JsonArray();
+				for (Row row : resultSet) {
+					result.add(JsonObject.mapFrom(new MotorValue(
+							row.getInteger("idmotor_value"),
+							row.getInteger("idmotor"),
+							row.getFloat("value"),
+							row.getLong("timestamp"))));
+				}
+				routingContext.response().setStatusCode(200).putHeader("content-type", "application/json")
+					.end(result.encodePrettily());
+			}
+		});
+	}
+	
 	private void addOneMotorValue(RoutingContext routingContext) {
 		JsonObject senval = routingContext.getBodyAsJson();
 		mySQLPool.query("SELECT * FROM dad_sunbot.motor_value WHERE idmotor_value="+senval.getInteger("idmotor_value"), res->{
@@ -236,7 +258,7 @@ public class RestVerticle extends AbstractVerticle {
 			}
 		});
 		routingContext.response().setStatusCode(200).putHeader("content-type", "application/json")
-		.end();
+		.end("Petición PUT ejecutada correctamente.");
 	}
 	private void deleteOneMotorValue(RoutingContext routingContext) {
 		mySQLPool.query("SELECT * FROM dad_sunbot.motor_value WHERE idmotor_value="+routingContext.request().getParam("idmotor_value"), res->{
@@ -256,7 +278,7 @@ public class RestVerticle extends AbstractVerticle {
 			}
 		});
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end();
+				.end("Petición DELETE ejecutada correctamente.");
 	}
 	private void postOneMotorValue(RoutingContext routingContext) {
 		JsonObject senval = routingContext.getBodyAsJson();
@@ -278,7 +300,7 @@ public class RestVerticle extends AbstractVerticle {
 			}
 		});
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end();
+				.end("Petición POST ejecutada correctamente.");
 	}
 	public void stop(Future<Void> stopFuture) throws Exception{
 		super.stop(stopFuture);
