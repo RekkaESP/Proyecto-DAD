@@ -19,9 +19,9 @@ import io.vertx.mqtt.messages.MqttPublishMessage;
 
 public class MQTTServerVerticle extends AbstractVerticle {
 	
-	public static final String TOPIC_LIGHTS = "lights";
 	public static final String TOPIC_INFO = "info";
-	public static final String TOPIC_DOMO = "domo";
+	public static final String TOPIC_SENSOR = "sensor";
+	public static final String TOPIC_MOTOR = "motor";
 	
 	private static final SetMultimap<String, MqttEndpoint> clients = LinkedHashMultimap.create();
 	
@@ -43,6 +43,7 @@ public class MQTTServerVerticle extends AbstractVerticle {
 				handleUnsubscription(endpoint);
 				publishHandler(endpoint);
 				handleSubscription(endpoint);
+				handleClientDisconnect(endpoint);
 			}else {
 				//AUTENTIFICACION NO CORRECTA
 				endpoint.reject(MqttConnectReturnCode.CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD);
@@ -90,14 +91,14 @@ public class MQTTServerVerticle extends AbstractVerticle {
 		if (message.qosLevel() == MqttQoS.AT_LEAST_ONCE) {
 			String topicName = message.topicName();
 			switch (topicName) {
-			case TOPIC_LIGHTS:
-				System.out.println("Luces published");
-				break;
 			case TOPIC_INFO:
 				System.out.println("Info published");
 				break;
-			case TOPIC_DOMO:
-				System.out.println("DomoState published");
+			case TOPIC_SENSOR:
+				System.out.println("Sensor published");
+				break;
+			case TOPIC_MOTOR:
+				System.out.println("Motor published");
 				break;
 			}
 			for (MqttEndpoint subscribed: clients.get(message.topicName())) {

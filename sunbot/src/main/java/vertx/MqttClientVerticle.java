@@ -2,7 +2,6 @@ package vertx;
 
 import java.util.Random;
 
-import dad.us.dadVertx.apiRestExample.DomoState;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.vertx.core.AbstractVerticle;
@@ -12,8 +11,10 @@ import io.vertx.core.json.Json;
 import io.vertx.mqtt.MqttClient;
 import io.vertx.mqtt.MqttClientOptions;
 import io.vertx.mqtt.impl.MqttClientImpl;
+import types.MotorValue;
+import types.SensorValue;
 
-public class MqttClient1Verticle extends AbstractVerticle {
+public class MqttClientVerticle extends AbstractVerticle {
 	private static Boolean sync = new Boolean(true);
 	private String classInstanceId;
 
@@ -43,27 +44,8 @@ public class MqttClient1Verticle extends AbstractVerticle {
 		});
 
 		Random randomTimeSeconds = new Random();
-
 		mqttClient.connect(1885, "localhost", handler -> {
 			if (handler.result().code() == MqttConnectReturnCode.CONNECTION_ACCEPTED) {
-				mqttClient.subscribe(MQTTServerVerticle.TOPIC_LIGHTS, MqttQoS.AT_LEAST_ONCE.value(),
-						handlerSubscribe -> {
-							if (handlerSubscribe.succeeded()) {
-								System.out.println(classInstanceId + " subscribed to " + MQTTServerVerticle.TOPIC_LIGHTS
-										+ " channel");
-
-								vertx.setPeriodic((5 + randomTimeSeconds.nextInt(5)) * 1000, handlerPeriodic -> {
-									mqttClient.publish(MQTTServerVerticle.TOPIC_LIGHTS,
-											Buffer.buffer(classInstanceId + " says LIGHTS.ON"), MqttQoS.AT_LEAST_ONCE,
-											false, true);
-								});
-							} else {
-								System.out.println(
-										classInstanceId + " NOT subscribed to " + MQTTServerVerticle.TOPIC_LIGHTS
-												+ " channel " + handlerSubscribe.cause().toString());
-							}
-						});
-
 				mqttClient.subscribe(MQTTServerVerticle.TOPIC_INFO, MqttQoS.AT_LEAST_ONCE.value(), handlerSubscribe -> {
 					if (handlerSubscribe.succeeded()) {
 						System.out.println(
@@ -80,21 +62,37 @@ public class MqttClient1Verticle extends AbstractVerticle {
 								+ " channel " + handlerSubscribe.cause().toString());
 					}
 				});
-
-				mqttClient.subscribe(MQTTServerVerticle.TOPIC_DOMO, MqttQoS.AT_LEAST_ONCE.value(), handlerSubscribe -> {
+				
+				mqttClient.subscribe(MQTTServerVerticle.TOPIC_SENSOR, MqttQoS.AT_LEAST_ONCE.value(), handlerSubscribe -> {
 					if (handlerSubscribe.succeeded()) {
 						System.out.println(
-								classInstanceId + " subscribed to " + MQTTServerVerticle.TOPIC_DOMO + " channel");
+								classInstanceId + " subscribed to " + MQTTServerVerticle.TOPIC_SENSOR + " channel");
 						vertx.setPeriodic((7 + randomTimeSeconds.nextInt(5)) * 1000, handlerPeriodic -> {
-							DomoState domoState = new DomoState("SwitchKitchen", "switch",
-									(new Random()).nextBoolean() ? "Enabled" : "Disabled");
+							SensorValue sensor = new SensorValue((int)Math.round(Math.random()), 500, 8);
 
-							mqttClient.publish(MQTTServerVerticle.TOPIC_DOMO,
-									Buffer.buffer(Json.encodePrettily(domoState)), MqttQoS.AT_LEAST_ONCE, false, true);
+							mqttClient.publish(MQTTServerVerticle.TOPIC_SENSOR,
+									Buffer.buffer(Json.encodePrettily(sensor)), MqttQoS.AT_LEAST_ONCE, false, true);
 						});
 
 					} else {
-						System.out.println(classInstanceId + " NOT subscribed to " + MQTTServerVerticle.TOPIC_DOMO
+						System.out.println(classInstanceId + " NOT subscribed to " + MQTTServerVerticle.TOPIC_SENSOR
+								+ " channel " + handlerSubscribe.cause().toString());
+					}
+				});
+						
+				mqttClient.subscribe(MQTTServerVerticle.TOPIC_MOTOR, MqttQoS.AT_LEAST_ONCE.value(), handlerSubscribe -> {
+					if (handlerSubscribe.succeeded()) {
+						System.out.println(
+								classInstanceId + " subscribed to " + MQTTServerVerticle.TOPIC_MOTOR + " channel");
+						vertx.setPeriodic((7 + randomTimeSeconds.nextInt(5)) * 1000, handlerPeriodic -> {
+							MotorValue motor = new MotorValue((int)Math.round(Math.random()));
+
+							mqttClient.publish(MQTTServerVerticle.TOPIC_MOTOR,
+									Buffer.buffer(Json.encodePrettily(motor)), MqttQoS.AT_LEAST_ONCE, false, true);
+						});
+
+					} else {
+						System.out.println(classInstanceId + " NOT subscribed to " + MQTTServerVerticle.TOPIC_MOTOR
 								+ " channel " + handlerSubscribe.cause().toString());
 					}
 				});
