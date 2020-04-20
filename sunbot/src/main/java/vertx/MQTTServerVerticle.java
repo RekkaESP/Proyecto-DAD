@@ -1,10 +1,12 @@
 package vertx;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 
+import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -12,12 +14,15 @@ import io.vertx.core.http.ClientAuth;
 import io.vertx.mqtt.MqttEndpoint;
 import io.vertx.mqtt.MqttServer;
 import io.vertx.mqtt.MqttServerOptions;
+import io.vertx.mqtt.MqttTopicSubscription;
+import io.vertx.mqtt.messages.MqttPublishMessage;
 
 public class MQTTServerVerticle extends AbstractVerticle {
 	
-	private static final String TOPIC_LIGHTS;
-	private static final String TOPIC_INFO;
-	private static final String TOPIC_DOMO;
+	public static final String TOPIC_LIGHTS = "lights";
+	public static final String TOPIC_INFO = "info";
+	public static final String TOPIC_DOMO = "domo";
+	
 	private static final SetMultimap<String, MqttEndpoint> clients = LinkedHashMultimap.create();
 	
 	public void start (Promise<Void> promise) {
@@ -52,9 +57,62 @@ public class MQTTServerVerticle extends AbstractVerticle {
 			}
 		});
 	}
-	private void handleSubscription(MqttEndpoint endpoint) {
-		endpoint.subscribeHandler(subsribe ->{
-			List<MqttQoS> grantedQoSLevels = new ArrayList();
+	private static void handleSubscription(MqttEndpoint endpoint) {
+		endpoint.subscribeHandler(subscribe -> {
+			List<MqttQoS> grantedQosLevels = new ArrayList<>();
+			for (MqttTopicSubscription s : subscribe.topicSubscriptions()) {
+				System.out.println("Subscription for " + s.topicName() + " with QoS " + s.qualityOfService());
+				grantedQosLevels.add(s.qualityOfService());
+				clients.put(s.topicName(), endpoint);
+			}
+			endpoint.subscribeAcknowledge(subscribe.messageId(), grantedQosLevels);
 		});
 	}
+	private static void handleUnsubscription(MqttEndpoint endpoint) {
+        endpoint.unsubscribeHandler(unsubscribe -> {
+            for (String t: unsubscribe.topics()) {
+                System.out.println("Unsubscription for " + t);
+                clients.remove(t, endpoint);
+            }
+            endpoint.unsubscribeAcknowledge(unsubscribe.messageId());
+        });
+    }
+
+	private static void publishHandler(MqttEndpoint endpoint) {
+		endpoint.publishHandler(message -> {
+			handleQoS(message, endpoint);
+		}).publishReleaseHandler(messageId -> {
+			endpoint.publishComplete(messageId);
+		});
+	}
+
+	private static void handleQoS(MqttPublishMessage message, MqttEndpoint endpoint) {
+		if (message.qosLevel() == MqttQoS.AT_LEAST_ONCE) {
+			String topicName = message.topicName();
+			switch (topicName) {
+			case TOPIC_LIGHTS:
+				System.out.println("Luces published");
+				break;
+			case TOPIC_INFO:
+				System.out.println("Info published");
+				break;
+			case TOPIC_DOMO:
+				System.out.println("DomoState published");
+				break;
+			}
+			for (MqttEndpoint subscribed: clients.get(message.topicName())) {
+				subscribed.publish(message.topicName(), message.payload(), message.qosLevel(), message.isDup(), message.isRetain());
+			}
+			endpoint.publishAcknowledge(message.messageId());
+		} else if (message.qosLevel() == MqttQoS.EXACTLY_ONCE) {
+			endpoint.publishRelease(message.messageId());
+		}
+	}
+
+	private static void handleClientDisconnect(MqttEndpoint endpoint) {
+		endpoint.disconnectHandler(h -> {
+			System.out.println("The remote client has closed the connection.");
+		});
+	}
+
 }
