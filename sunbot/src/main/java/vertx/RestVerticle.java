@@ -41,6 +41,8 @@ public class RestVerticle extends AbstractVerticle {
 		router.put("/api/putMotorValue").handler(this::addOneMotorValue);
 		router.delete("/api/deleteMotorValue/:idmotor_value").handler(this::deleteOneMotorValue);
 		router.post("/api/postMotorValue").handler(this::postOneMotorValue);
+		
+		vertx.deployVerticle(MQTTServerVerticle.class.getName());
 	}
 	
 	////////////////
