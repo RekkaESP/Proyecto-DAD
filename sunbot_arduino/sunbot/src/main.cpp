@@ -7,8 +7,8 @@
 char responseBuffer[300];
 WiFiClient client;
 
-String SSID = "SiempreHomeDomo";
-String PASS = "d7?a35D9EnaPepXY?c!4";
+String SSID = "";
+String PASS = "";
 
 String SERVER_IP = "www.mocky.io";
 int SERVER_PORT = 80;
