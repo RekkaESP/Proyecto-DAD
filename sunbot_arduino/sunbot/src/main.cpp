@@ -40,7 +40,7 @@ void loop() {
 void sendGetRequest(){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
-    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5e91859a3300005d00e9cf04", true);
+    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5eb691963100006a00c89f4b", true);
     int httpCode = http.GET();
 
     Serial.println("Response code: " + httpCode);
@@ -72,7 +72,7 @@ void sendGetRequest(){
 void sendPostRequest(){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
-    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5e91859a3300005d00e9cf04", true);
+    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5185415ba171ea3a00704eed", true);
     http.addHeader("Content-Type", "application/json");
 
     const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
@@ -93,4 +93,5 @@ void sendPostRequest(){
 
     Serial.println("Resultado: " + payload);
   }
+
 }
