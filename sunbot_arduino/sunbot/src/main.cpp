@@ -44,7 +44,7 @@ void loop() {
 void sendGetSensor(){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
-    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5eb691963100006a00c89f4b", true);
+    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5eba72902f00005e523c382a", true);
     int httpCode = http.GET();
 
     Serial.println("Response code: " + httpCode);
@@ -78,7 +78,7 @@ void sendGetSensor(){
 void sendGetMotor(){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
-    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5eb691963100006a00c89f4b", true);
+    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5eba732b2f00001a323c3833", true);
     int httpCode = http.GET();
 
     Serial.println("Response code: " + httpCode);
