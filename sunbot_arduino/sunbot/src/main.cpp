@@ -62,13 +62,16 @@ void sendGetSensor(){
     }
     Serial.println(F("Response:"));
     int idsensor_value = doc["idsensor_value"].as<int>();
-    int idsensor_value = doc["idsensor_value"].as<int>();
-    long time = doc["time"].as<long>();
-    float data = doc["data"].as<float>();
+    int idsensor = doc["idsensor"].as<int>();
+    float value = doc["value"].as<float>();
+    float accuracy = doc["accuracy"].as<float>();
+    long timestamp = doc["timestamp"].as<long>();
 
-    Serial.println("Sensor name: " + sensor);
-    Serial.println("Time: " + String(time));
-    Serial.println("Data: " + String(data));
+    Serial.println("idsensor_value: " + String(idsensor_value));
+    Serial.println("idsensor: " + String(idsensor));
+    Serial.println("value: " + String(value));
+    Serial.println("accuracy: " + String(accuracy));
+    Serial.println("timestamp: " + String(timestamp));
   }
 }
 
@@ -92,14 +95,15 @@ void sendGetMotor(){
       return;
     }
     Serial.println(F("Response:"));
-    int idsensor_value = doc["idsensor_value"].as<int>();
-    int idsensor_value = doc["idsensor_value"].as<int>();
-    long time = doc["time"].as<long>();
-    float data = doc["data"].as<float>();
+    int idmotor_value = doc["idmotor_value"].as<int>();
+    float value = doc["value"].as<float>();
+    long timestamp = doc["timestamp"].as<long>();
+    int idmotor = doc["idmotor"].as<int>();
 
-    Serial.println("Sensor name: " + sensor);
-    Serial.println("Time: " + String(time));
-    Serial.println("Data: " + String(data));
+    Serial.println("idmotor_value: " + String(idmotor_value));
+    Serial.println("Motor ID: " + String(idmotor));
+    Serial.println("Value: " + String(value));
+    Serial.println("Time: " + String(timestamp));
   }
 }
 
@@ -112,10 +116,10 @@ void sendPostSensor(){
 
     const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
     DynamicJsonDocument doc(capacity);
-    doc["temperature"] = 18;
-    doc["humidity"] = 78;
+    doc["idsensor"] = 1;
+    doc["value"] = 10.0;
+    doc["accuracy"] = 0.58;
     doc["timestamp"] = 124123123;
-    doc["name"] = "sensor1";
 
     String output;
     serializeJson(doc, output);
@@ -139,10 +143,9 @@ void sendPostMotor(){
 
     const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
     DynamicJsonDocument doc(capacity);
-    doc["temperature"] = 18;
-    doc["humidity"] = 78;
+    doc["value"] = 78;
     doc["timestamp"] = 124123123;
-    doc["name"] = "sensor1";
+    doc["idmotor"] = 1;
 
     String output;
     serializeJson(doc, output);
@@ -155,5 +158,4 @@ void sendPostMotor(){
 
     Serial.println("Resultado: " + payload);
   }
-
 }
