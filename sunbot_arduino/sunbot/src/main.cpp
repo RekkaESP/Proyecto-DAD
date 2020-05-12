@@ -13,8 +13,10 @@ String PASS = "";
 String SERVER_IP = "www.mocky.io";
 int SERVER_PORT = 80;
 
-void sendGetRequest();
-void sendPostRequest();
+void sendGetSensor();
+void sendGetMotor();
+void sendPostSensor();
+void sendPostMotor();
 
 void setup() {
   Serial.begin(9600);
@@ -31,13 +33,15 @@ void setup() {
 }
 
 void loop() {
-  sendGetRequest();
+  sendGetSensor();
+  sendGetMotor();
   delay(3000);
-  sendPostRequest();
+  sendPostSensor();
+  sendPostMotor();
   delay(3000);
 }
 
-void sendGetRequest(){
+void sendGetSensor(){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
     http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5eb691963100006a00c89f4b", true);
@@ -57,7 +61,39 @@ void sendGetRequest(){
       return;
     }
     Serial.println(F("Response:"));
-    String sensor = doc["sensor"].as<char*>();
+    int idsensor_value = doc["idsensor_value"].as<int>();
+    int idsensor_value = doc["idsensor_value"].as<int>();
+    long time = doc["time"].as<long>();
+    float data = doc["data"].as<float>();
+
+    Serial.println("Sensor name: " + sensor);
+    Serial.println("Time: " + String(time));
+    Serial.println("Data: " + String(data));
+  }
+}
+
+void sendGetMotor(){
+  if (WiFi.status() == WL_CONNECTED){
+    HTTPClient http;
+    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5eb691963100006a00c89f4b", true);
+    int httpCode = http.GET();
+
+    Serial.println("Response code: " + httpCode);
+
+    String payload = http.getString();
+
+    const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
+    DynamicJsonDocument doc(capacity);
+
+    DeserializationError error = deserializeJson(doc, payload);
+    if (error){
+      Serial.print("deserializeJson() failed: ");
+      Serial.println(error.c_str());
+      return;
+    }
+    Serial.println(F("Response:"));
+    int idsensor_value = doc["idsensor_value"].as<int>();
+    int idsensor_value = doc["idsensor_value"].as<int>();
     long time = doc["time"].as<long>();
     float data = doc["data"].as<float>();
 
@@ -68,8 +104,34 @@ void sendGetRequest(){
 }
 
 
+void sendPostSensor(){
+  if (WiFi.status() == WL_CONNECTED){
+    HTTPClient http;
+    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5185415ba171ea3a00704eed", true);
+    http.addHeader("Content-Type", "application/json");
 
-void sendPostRequest(){
+    const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
+    DynamicJsonDocument doc(capacity);
+    doc["temperature"] = 18;
+    doc["humidity"] = 78;
+    doc["timestamp"] = 124123123;
+    doc["name"] = "sensor1";
+
+    String output;
+    serializeJson(doc, output);
+
+    int httpCode = http.PUT(output);
+
+    Serial.println("Response code: " + httpCode);
+
+    String payload = http.getString();
+
+    Serial.println("Resultado: " + payload);
+  }
+
+}
+
+void sendPostMotor(){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
     http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5185415ba171ea3a00704eed", true);
