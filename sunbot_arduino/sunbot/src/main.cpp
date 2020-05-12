@@ -15,8 +15,8 @@ int SERVER_PORT = 8090;
 
 void sendGetSensor(int);
 void sendGetMotor(int);
-void sendPostSensor(int,float,float,long));
-void sendPostMotor(int,float,long));
+void sendPostSensor(int,float,float,long);
+void sendPostMotor(int,float,long);
 
 void setup() {
   Serial.begin(9600);
@@ -36,8 +36,8 @@ void loop() {
   sendGetSensor(1);
   sendGetMotor(4);
   delay(3000);
-  sendPostSensor();
-  sendPostMotor();
+  sendPostSensor(1,542.5,0.67,132453542);
+  sendPostMotor(2,1.0,123789456);
   delay(3000000);
 }
 
