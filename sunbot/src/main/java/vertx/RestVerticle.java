@@ -97,14 +97,14 @@ public class RestVerticle extends AbstractVerticle {
 		res -> {
 			if (res.succeeded()) {
 				RowSet<Row> resultSet = res.result();
-				JsonArray result = new JsonArray();
+				JsonObject result = new JsonObject();
 				for (Row row : resultSet) {
-					result.add(JsonObject.mapFrom(new SensorValue(
+					result = JsonObject.mapFrom(new SensorValue(
 							row.getInteger("idsensor_value"),
 							row.getInteger("idsensor"),
 							row.getFloat("value"),
 							row.getFloat("accuracy"),
-							row.getLong("timestamp"))));
+							row.getLong("timestamp")));
 				}
 				routingContext.response().setStatusCode(200).putHeader("content-type", "application/json")
 					.end(result.encodePrettily());

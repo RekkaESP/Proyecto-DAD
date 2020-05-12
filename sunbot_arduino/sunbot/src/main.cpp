@@ -7,10 +7,10 @@
 char responseBuffer[300];
 WiFiClient client;
 
-String SSID = "SSI_ONSICOM_JUANMA";
-String PASS = "EfTvT5dr";
+String SSID = "";
+String PASS = "";
 
-String SERVER_IP = "192.168.100.46";
+String SERVER_IP = "192.168.100.6";
 int SERVER_PORT = 8090;
 
 void sendGetSensor(int);
