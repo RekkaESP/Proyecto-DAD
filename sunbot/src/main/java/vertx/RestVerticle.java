@@ -227,13 +227,13 @@ public class RestVerticle extends AbstractVerticle {
 		res -> {
 			if (res.succeeded()) {
 				RowSet<Row> resultSet = res.result();
-				JsonArray result = new JsonArray();
+				JsonObject result = new JsonObject();
 				for (Row row : resultSet) {
-					result.add(JsonObject.mapFrom(new MotorValue(
+					result = JsonObject.mapFrom(new MotorValue(
 							row.getInteger("idmotor_value"),
 							row.getInteger("idmotor"),
 							row.getFloat("value"),
-							row.getLong("timestamp"))));
+							row.getLong("timestamp")));
 				}
 				routingContext.response().setStatusCode(200).putHeader("content-type", "application/json")
 					.end(result.encodePrettily());
