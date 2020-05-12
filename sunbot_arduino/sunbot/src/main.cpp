@@ -10,10 +10,10 @@ WiFiClient client;
 String SSID = "SSI_ONSICOM_JUANMA";
 String PASS = "EfTvT5dr";
 
-String SERVER_IP = "192.168.100.6";
-int SERVER_PORT = 80;
+String SERVER_IP = "192.168.100.46";
+int SERVER_PORT = 8090;
 
-void sendGetSensor();
+void sendGetSensor(int);
 void sendGetMotor();
 void sendPostSensor();
 void sendPostMotor();
@@ -33,25 +33,25 @@ void setup() {
 }
 
 void loop() {
-  sendGetSensor();
-  sendGetMotor();
+  sendGetSensor(1);
+//  sendGetMotor();
   delay(3000);
-  sendPostSensor();
-  sendPostMotor();
-  delay(3000);
+//  sendPostSensor();
+//  sendPostMotor();
+  delay(3000000);
 }
 
-void sendGetSensor(){
+void sendGetSensor(int id){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
-    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5eba72902f00005e523c382a", true);
+    http.begin(client, SERVER_IP, SERVER_PORT, "/api/getSensorValueById/" + String(id), true);
     int httpCode = http.GET();
 
     Serial.println("Response code: " + httpCode);
 
     String payload = http.getString();
 
-    const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
+    const size_t capacity = JSON_OBJECT_SIZE(5) + JSON_ARRAY_SIZE(0) + 60;
     DynamicJsonDocument doc(capacity);
 
     DeserializationError error = deserializeJson(doc, payload);
