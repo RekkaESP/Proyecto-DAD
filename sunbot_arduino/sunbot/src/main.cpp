@@ -14,7 +14,7 @@ String SERVER_IP = "192.168.100.6";
 int SERVER_PORT = 8090;
 
 void sendGetSensor(int);
-void sendGetMotor();
+void sendGetMotor(int);
 void sendPostSensor();
 void sendPostMotor();
 
@@ -34,10 +34,10 @@ void setup() {
 
 void loop() {
   sendGetSensor(1);
-//  sendGetMotor();
+  sendGetMotor(4);
   delay(3000);
-//  sendPostSensor();
-//  sendPostMotor();
+  sendPostSensor();
+  sendPostMotor();
   delay(3000000);
 }
 
@@ -51,7 +51,7 @@ void sendGetSensor(int id){
 
     String payload = http.getString();
 
-    const size_t capacity = JSON_OBJECT_SIZE(5) + JSON_ARRAY_SIZE(0) + 60;
+    const size_t capacity = JSON_OBJECT_SIZE(5) + 60;
     DynamicJsonDocument doc(capacity);
 
     DeserializationError error = deserializeJson(doc, payload);
@@ -75,17 +75,17 @@ void sendGetSensor(int id){
   }
 }
 
-void sendGetMotor(){
+void sendGetMotor(int id){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
-    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5eba732b2f00001a323c3833", true);
+    http.begin(client, SERVER_IP, SERVER_PORT, "/api/getMotorValueById/" + String(id), true);
     int httpCode = http.GET();
 
     Serial.println("Response code: " + httpCode);
 
     String payload = http.getString();
 
-    const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
+    const size_t capacity = JSON_OBJECT_SIZE(4) + JSON_ARRAY_SIZE(0) + 60;
     DynamicJsonDocument doc(capacity);
 
     DeserializationError error = deserializeJson(doc, payload);
