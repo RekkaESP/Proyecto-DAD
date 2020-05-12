@@ -15,8 +15,8 @@ int SERVER_PORT = 8090;
 
 void sendGetSensor(int);
 void sendGetMotor(int);
-void sendPostSensor();
-void sendPostMotor();
+void sendPostSensor(int,float,float,long));
+void sendPostMotor(int,float,long));
 
 void setup() {
   Serial.begin(9600);
@@ -108,7 +108,7 @@ void sendGetMotor(int id){
 }
 
 
-void sendPostSensor(){
+void sendPostSensor(int idsensor, float value, float accuracy, long timestamp){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
     http.begin(client, SERVER_IP, SERVER_PORT, "/api/putSensorValue", true);
@@ -116,10 +116,10 @@ void sendPostSensor(){
 
     const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
     DynamicJsonDocument doc(capacity);
-    doc["idsensor"] = 1;
-    doc["value"] = 10.0;
-    doc["accuracy"] = 0.58;
-    doc["timestamp"] = 124123123;
+    doc["idsensor"] = idsensor;
+    doc["value"] = value;
+    doc["accuracy"] = accuracy;
+    doc["timestamp"] = timestamp;
 
     String output;
     serializeJson(doc, output);
@@ -135,7 +135,7 @@ void sendPostSensor(){
 
 }
 
-void sendPostMotor(){
+void sendPostMotor(int idmotor, float value, long timestamp){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
     http.begin(client, SERVER_IP, SERVER_PORT, "/api/putMotorValue", true);
@@ -143,9 +143,9 @@ void sendPostMotor(){
 
     const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
     DynamicJsonDocument doc(capacity);
-    doc["value"] = 78;
-    doc["timestamp"] = 124123123;
-    doc["idmotor"] = 1;
+    doc["value"] = value;
+    doc["timestamp"] = timestamp;
+    doc["idmotor"] = idmotor;
 
     String output;
     serializeJson(doc, output);
