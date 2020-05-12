@@ -7,10 +7,10 @@
 char responseBuffer[300];
 WiFiClient client;
 
-String SSID = "";
-String PASS = "";
+String SSID = "SSI_ONSICOM_JUANMA";
+String PASS = "EfTvT5dr";
 
-String SERVER_IP = "www.mocky.io";
+String SERVER_IP = "192.168.100.6";
 int SERVER_PORT = 80;
 
 void sendGetSensor();
@@ -111,7 +111,7 @@ void sendGetMotor(){
 void sendPostSensor(){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
-    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5185415ba171ea3a00704eed", true);
+    http.begin(client, SERVER_IP, SERVER_PORT, "/api/putSensorValue", true);
     http.addHeader("Content-Type", "application/json");
 
     const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
@@ -138,7 +138,7 @@ void sendPostSensor(){
 void sendPostMotor(){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
-    http.begin(client, SERVER_IP, SERVER_PORT, "/v2/5185415ba171ea3a00704eed", true);
+    http.begin(client, SERVER_IP, SERVER_PORT, "/api/putMotorValue", true);
     http.addHeader("Content-Type", "application/json");
 
     const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;

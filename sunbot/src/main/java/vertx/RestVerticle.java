@@ -43,7 +43,7 @@ public class RestVerticle extends AbstractVerticle {
 		router.post("/api/postMotorValue").handler(this::postOneMotorValue);
 		
 		vertx.deployVerticle(MQTTServerVerticle.class.getName());
-		vertx.deployVerticle(MqttClientVerticle.class.getName());
+		//vertx.deployVerticle(MqttClientVerticle.class.getName());
 	}
 	
 	////////////////
