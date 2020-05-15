@@ -10,7 +10,7 @@ WiFiClient client;
 String SSID = "";
 String PASS = "";
 
-String SERVER_IP = "192.168.100.6";
+String SERVER_IP = "";
 int SERVER_PORT = 8090;
 
 void sendGetSensor(int);
