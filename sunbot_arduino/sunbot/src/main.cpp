@@ -12,7 +12,7 @@ WiFiClient client;
 String SSID = "FTTH_Palacios_ilCqwk";
 String PASS = "3X76dhNs";
 
-String SERVER_IP = "192.168.100.46";
+String SERVER_IP = "192.168.100.94";
 int SERVER_PORT = 8090;
 
 ///////-MQTT-//////////
@@ -23,7 +23,7 @@ unsigned long lastMsg = 0;
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
 //IPAddress mqtt_server(127, 0, 0, 1);
-const char* mqtt_server = "192.168.100.46";
+const char* mqtt_server = "192.168.100.94";
 const char* mqtt_username = "mqttbroker";
 const char* mqtt_password = "mqttbrokerpass";
 ///////////////////////
@@ -59,7 +59,7 @@ void loop() {
   if (now - lastMsg > 10000) {
     lastMsg = now;
     ++value;
-    snprintf (msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
+    snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]500");
     Serial.print("Publish message: ");
     Serial.println(msg);
     MQTTclient.publish("sensor", msg);

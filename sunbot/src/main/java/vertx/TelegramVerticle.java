@@ -16,7 +16,7 @@ import kt.schors.vertx.telegram.bot.api.types.Update;
 
 public class TelegramVerticle extends AbstractVerticle{
 	
-	private TelegramBot bot;
+	private static TelegramBot bot;
 	
 	@Override
 	public void start(Promise<Void> future) {
@@ -39,7 +39,8 @@ public class TelegramVerticle extends AbstractVerticle{
 		
 		bot.start();
 	}
-
 	
-	
+	public static void sendMessage(Integer h) {
+		bot.sendMessage(new SendMessage().setText("Aviso: La humedad está a niveles bajos. ["+h+"]"));
+	}	
 }

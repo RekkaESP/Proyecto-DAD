@@ -88,7 +88,7 @@ public class MQTTServerVerticle extends AbstractVerticle {
 	}
 
 	private static void handleQoS(MqttPublishMessage message, MqttEndpoint endpoint) {
-		if (message.qosLevel() == MqttQoS.AT_LEAST_ONCE) {
+		if (message.qosLevel() == MqttQoS.AT_LEAST_ONCE || message.qosLevel() == MqttQoS.AT_MOST_ONCE) {
 			String topicName = message.topicName();
 			switch (topicName) {
 			case TOPIC_INFO:
@@ -96,6 +96,10 @@ public class MQTTServerVerticle extends AbstractVerticle {
 				break;
 			case TOPIC_SENSOR:
 				System.out.println("Sensor published");
+				if(message.toString().startsWith("[Humedad]")) {
+					Integer h = Integer.parseInt(message.toString().replaceAll("[Humedad]", ""));
+					TelegramVerticle.sendMessage(h);
+				}
 				break;
 			case TOPIC_MOTOR:
 				System.out.println("Motor published");
