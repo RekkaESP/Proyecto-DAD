@@ -12,7 +12,7 @@ WiFiClient client;
 String SSID = "FTTH_Palacios_ilCqwk";
 String PASS = "3X76dhNs";
 
-String SERVER_IP = "192.168.100.94";
+String SERVER_IP = "192.168.100.46";
 int SERVER_PORT = 8090;
 
 ///////-MQTT-//////////
@@ -23,7 +23,7 @@ unsigned long lastMsg = 0;
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
 //IPAddress mqtt_server(127, 0, 0, 1);
-const char* mqtt_server = "192.168.100.94";
+const char* mqtt_server = "192.168.100.46";
 const char* mqtt_username = "mqttbroker";
 const char* mqtt_password = "mqttbrokerpass";
 ///////////////////////
@@ -56,10 +56,10 @@ void loop() {
   MQTTclient.loop();
 
   unsigned long now = millis();
-  if (now - lastMsg > 10000) {
+  if (now - lastMsg > 20000) {
     lastMsg = now;
     ++value;
-    snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]500");
+    snprintf (msg, MSG_BUFFER_SIZE, "[Humedad] %d\n", value);
     Serial.print("Publish message: ");
     Serial.println(msg);
     MQTTclient.publish("sensor", msg);
@@ -97,7 +97,7 @@ void reconnect() {
       Serial.println("connected");
       MQTTclient.subscribe("sensor", 0);
       // Once connected, publish an announcement...
-      MQTTclient.publish("info", "hello world",true);
+      MQTTclient.publish("info", "ESP8266 Conectado",true);
       // ... and resubscribe
       MQTTclient.subscribe("sensor", 0);
     } else {

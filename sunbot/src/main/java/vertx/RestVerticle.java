@@ -17,6 +17,7 @@ import types.SensorValue;
 
 public class RestVerticle extends AbstractVerticle {
 	
+	public Boolean aviso;
 	private MySQLPool mySQLPool;
 	@SuppressWarnings("deprecation")
 	@Override
@@ -43,7 +44,7 @@ public class RestVerticle extends AbstractVerticle {
 		router.post("/api/postMotorValue").handler(this::postOneMotorValue);
 		
 		vertx.deployVerticle(MQTTServerVerticle.class.getName());
-		//vertx.deployVerticle(TelegramVerticle.class.getName());
+		vertx.deployVerticle(TelegramVerticle.class.getName());
 		//vertx.deployVerticle(MqttClientVerticle.class.getName());
 	}
 	
