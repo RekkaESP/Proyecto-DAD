@@ -31,7 +31,7 @@ public class TelegramVerticle extends AbstractVerticle{
 				.receiver(new LongPollingReceiver().onUpdate(handler -> {
 					if (handler.getMessage().getText().toLowerCase().equals("/start")) {
 						bot.sendMessage(new SendMessage()
-								.setText("Hola " + handler.getMessage().getFrom().getFirstName() + " ¿en qué puedo ayudarte?")
+								.setText("START" + handler.getMessage().getFrom().getFirstName() + " si.")
 								.setChatId(handler.getMessage().getChatId()));
 						chatid.add(handler.getMessage().getChatId());
 					} else if (handler.getMessage().getText().toLowerCase().contentEquals("/warning")) {	
@@ -39,7 +39,12 @@ public class TelegramVerticle extends AbstractVerticle{
 											.setText("//\\ AVISO: funsiona")
 											.setChatId(handler.getMessage().getChatId()));
 						
-					}
+					} else if(RestVerticle.aviso == true)
+						bot.sendMessage(new SendMessage()
+								.setText("Avisando a" + handler.getMessage().getFrom().getFirstName() + " si.")
+								.setChatId(handler.getMessage().getChatId()));
+						chatid.add(handler.getMessage().getChatId());
+						RestVerticle.aviso = false;
 				}));
 		
 		bot.start();
