@@ -9,12 +9,6 @@ import org.schors.vertx.telegram.bot.api.methods.SendMessage;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.client.HttpResponse;
-import io.vertx.ext.web.client.WebClient;
-import kt.schors.vertx.telegram.bot.api.types.Update;
 
 public class TelegramVerticle extends AbstractVerticle{
 	
@@ -29,30 +23,31 @@ public class TelegramVerticle extends AbstractVerticle{
 				.setBotToken("797617261:AAGvcVcNnJQDmvtdUa3iNJBGMna0hpzCQ_Q");
 		bot = TelegramBot.create(vertx, telegramOptions)
 				.receiver(new LongPollingReceiver().onUpdate(handler -> {
-					if (handler.getMessage().getText().toLowerCase().equals("/start")) {
+					if (handler.getMessage().getText().toLowerCase().equals("/avisa")) {
 						bot.sendMessage(new SendMessage()
-								.setText("START" + handler.getMessage().getFrom().getFirstName() + " si.")
+								.setText("Entendido " + handler.getMessage().getFrom().getFirstName() + ". Te avisaré cuando la humedad sea baja.")
 								.setChatId(handler.getMessage().getChatId()));
 						chatid.add(handler.getMessage().getChatId());
-					} else if (handler.getMessage().getText().toLowerCase().contentEquals("/warning")) {	
-									bot.sendMessage(new SendMessage()
-											.setText("//\\ AVISO: funsiona")
-											.setChatId(handler.getMessage().getChatId()));
-						
-					} else if(RestVerticle.aviso == true)
+					} else if(handler.getMessage().getText().toLowerCase().equals("/noavisa")) {
+						if(chatid.contains(handler.getMessage().getChatId())) {
+							bot.sendMessage(new SendMessage()
+									.setText("Entendido " + handler.getMessage().getFrom().getFirstName() + ". No recibirás más avisos.")
+									.setChatId(handler.getMessage().getChatId()));
+							chatid.remove(handler.getMessage().getChatId());
+						}
+					} else if (handler.getMessage().getText().toLowerCase().contentEquals("/test")) {	
 						bot.sendMessage(new SendMessage()
-								.setText("Avisando a" + handler.getMessage().getFrom().getFirstName() + " si.")
+								.setText("//\\ AVISO: funsiona")
 								.setChatId(handler.getMessage().getChatId()));
-						chatid.add(handler.getMessage().getChatId());
-						RestVerticle.aviso = false;
+					}
 				}));
 		
 		bot.start();
 	}
 	
-	public static void sendMessage(Integer h) {
+	public static void sendMessage(String h) {
 		for(String s: chatid) {
-		bot.sendMessage(new SendMessage().setText("Aviso: La humedad está a niveles bajos. ["+h+"]").setChatId(s));
+			bot.sendMessage(new SendMessage().setText("Aviso: La humedad está a niveles bajos. ["+h+"]").setChatId(s));
 		}
 	}	
 }

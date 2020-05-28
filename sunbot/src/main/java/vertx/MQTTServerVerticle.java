@@ -95,11 +95,9 @@ public class MQTTServerVerticle extends AbstractVerticle {
 				System.out.println("Info published");
 				break;
 			case TOPIC_SENSOR:
-				System.out.println("Sensor published");
-				if(message.toString().startsWith("[Humedad]")) {
-					RestVerticle.aviso = true;
-					Integer h = Integer.parseInt(message.toString().replaceAll("[Humedad]", ""));
-					TelegramVerticle.sendMessage(h);
+				System.out.println("LLega:"+message.payload().toString());
+				if(message.payload().toString().startsWith("[Humedad]")) {
+					TelegramVerticle.sendMessage(message.payload().toString().replaceAll("\\[Humedad\\]", ""));
 				}
 				break;
 			case TOPIC_MOTOR:

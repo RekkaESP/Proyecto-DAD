@@ -56,10 +56,10 @@ void loop() {
   MQTTclient.loop();
 
   unsigned long now = millis();
-  if (now - lastMsg > 20000) {
+  if (now - lastMsg > 6000) {
     lastMsg = now;
     ++value;
-    snprintf (msg, MSG_BUFFER_SIZE, "[Humedad] %d\n", value);
+    snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", value);
     Serial.print("Publish message: ");
     Serial.println(msg);
     MQTTclient.publish("sensor", msg);

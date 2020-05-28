@@ -17,7 +17,6 @@ import types.SensorValue;
 
 public class RestVerticle extends AbstractVerticle {
 	
-	public static Boolean aviso = false;
 	private MySQLPool mySQLPool;
 	@SuppressWarnings("deprecation")
 	@Override
