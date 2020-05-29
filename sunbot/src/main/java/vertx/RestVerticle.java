@@ -1,5 +1,7 @@
 package vertx;
 
+import java.util.Calendar;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
@@ -121,7 +123,7 @@ public class RestVerticle extends AbstractVerticle {
 					System.out.println("El objeto ya existe en la base de datos.");
 				}else {
 					mySQLPool.query("INSERT INTO sensor_value(idsensor_value,idsensor,value,accuracy,timestamp) VALUES("+
-							senval.getInteger("idsensor_value") + ","+senval.getInteger("idsensor")+","+senval.getFloat("value")+","+senval.getFloat("accuracy")+","+senval.getInteger("timestamp")+")", 
+							senval.getInteger("idsensor_value") + ","+senval.getInteger("idsensor")+","+senval.getFloat("value")+","+senval.getFloat("accuracy")+","+Calendar.getInstance().getTimeInMillis()+")", 
 							res2 -> {
 								if (res2.succeeded()) {
 									System.out.println("Datos introducidos correctamente.");
@@ -250,7 +252,7 @@ public class RestVerticle extends AbstractVerticle {
 					System.out.println("El objeto ya existe en la base de datos.");
 				}else {
 					mySQLPool.query("INSERT INTO motor_value(idmotor_value,idmotor,value,timestamp) VALUES("+
-							senval.getInteger("idmotor_value") + ","+senval.getInteger("idmotor")+","+senval.getFloat("value")+","+senval.getInteger("timestamp")+")", 
+							senval.getInteger("idmotor_value") + ","+senval.getInteger("idmotor")+","+senval.getFloat("value")+","+Calendar.getInstance().getTimeInMillis()+")", 
 							res2 -> {
 								if (res2.succeeded()) {
 									System.out.println("Datos introducidos correctamente.");

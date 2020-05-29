@@ -39,8 +39,17 @@ const int S0 = D2;
 const int S1 = D3;
 const int sensor = A0;
 
-//servo_motor
+//Servo motor
 const int servo = D4;
+
+//Id de los sensores
+const int idSensorIzq = 0;
+const int idSensorDer = 1;
+const int idSensorHum = 2;
+
+//Id de los Motores
+const int idMotorIzq = 0;
+const int idMotorDer = 1;
 
 Servo servo_motor;
 
@@ -58,6 +67,9 @@ int humedad = 0;
 float diferenciaLum = 0;
 
 long ultimaLectura = 0;
+long ultimaHum = 0;
+long ultimoMotor = 0;
+unsigned long nowHum = 0;
 long t = 0;
 long d = 0;
 
@@ -71,8 +83,8 @@ void callback(char* topic, byte* payload, unsigned int length);
 void reconnect();
 void sendGetSensor(int);
 void sendGetMotor(int);
-void sendPostSensor(int,float,float,long);
-void sendPostMotor(int,float,long);
+void sendPostSensor(int,float,float);
+void sendPostMotor(int,float);
 
 int buscaLuz();
 int calculaDistancia();
@@ -134,14 +146,20 @@ void loop(){
   }else if(calcLum==2){
     printf("Luz derecha = %i; Luz izquierda=%i, moviendo derecha...\n",lumDer,lumIzq);
     giraDerecha();
+  }else if(calcLum==4){
+    printf("Hay suficiente luz. Parando motores. (Luz derecha = %i; Luz izquierda=%i)",lumDer,lumIzq);
+    pararMotores();
   }
-  humedad = 0/*calculaHumedad()*/;
-  if (humedad > 700) {
-    snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", humedad);
-    Serial.print("Publish message: ");
-    Serial.println(msg);
-    MQTTclient.publish("sensor", msg);
+  nowHum = millis();
+  if(nowHum - ultimaHum > 6000){ //6s para probar, debería ser cada 1 min (10000)
+    humedad = calculaHumedad();
+    if (humedad > 700) {
+      snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", humedad);
+      Serial.print("Publish message: ");
+      Serial.println(msg);
+      //MQTTclient.publish("sensor", msg);
     }
+  }
 }
 
 //MQTT
@@ -153,7 +171,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print((char)payload[i]);
   }
   Serial.println();
-
 
   if ((char)payload[0] == '1') {
     //digitalWrite(BUILTIN_LED, LOW);
@@ -203,12 +220,14 @@ void calculaLuminosidadIzq(){
   digitalWrite(S1,HIGH);
   digitalWrite(S0,LOW);
   lumIzq = analogRead(sensor);
+  sendPostSensor(idSensorIzq,lumIzq,1);
 }
 
 void calculaLuminosidadDer(){
   digitalWrite(S1,LOW);
   digitalWrite(S0,HIGH);
   lumDer = analogRead(sensor);
+  sendPostSensor(idSensorDer,lumDer,1);
 }
 
 int calculaHumedad(){
@@ -216,6 +235,7 @@ int calculaHumedad(){
   digitalWrite(S1,LOW);
   digitalWrite(S0,LOW);
   hum = analogRead(sensor);
+  sendPostSensor(idSensorHum,lumIzq,1);
   return hum;
 }
 
@@ -238,6 +258,8 @@ int miraIzquierda(){
 }
 
 void pararMotores(){
+  sendPostMotor(idMotorIzq,0);
+  sendPostMotor(idMotorDer,0);
   digitalWrite(motorDerAdelante, LOW);
   digitalWrite(motorIzqAdelante, LOW);
   digitalWrite(motorDerAtras, LOW);
@@ -245,6 +267,8 @@ void pararMotores(){
 }
 
 void mueveAdelante(){
+  sendPostMotor(idMotorIzq,1);
+  sendPostMotor(idMotorDer,1);
   digitalWrite(motorIzqAdelante, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
   digitalWrite(motorIzqAtras, LOW);
@@ -252,6 +276,8 @@ void mueveAdelante(){
 }
 
 void mueveAtras(){
+  sendPostMotor(idMotorIzq,-1);
+  sendPostMotor(idMotorDer,-1);
   digitalWrite(motorIzqAtras, HIGH);
   digitalWrite(motorDerAtras, HIGH);
   digitalWrite(motorIzqAdelante, LOW);
@@ -259,10 +285,12 @@ void mueveAtras(){
 }
 
 void giraDerecha(){
-  digitalWrite(motorIzqAdelante, LOW);
-  digitalWrite(motorDerAtras, LOW);
-  digitalWrite(motorIzqAtras, HIGH);
-  digitalWrite(motorDerAdelante, HIGH);
+  sendPostMotor(idMotorIzq,1);
+  sendPostMotor(idMotorDer,-1);
+  digitalWrite(motorIzqAdelante, HIGH);
+  digitalWrite(motorDerAtras, HIGH);
+  digitalWrite(motorIzqAtras, LOW);
+  digitalWrite(motorDerAdelante, LOW);
   delay(1000);
   digitalWrite(motorIzqAdelante, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
@@ -271,6 +299,8 @@ void giraDerecha(){
 }
 
 void giraIzquierda(){
+  sendPostMotor(idMotorIzq,-1);
+  sendPostMotor(idMotorDer,1);
   digitalWrite(motorIzqAtras, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
   digitalWrite(motorIzqAdelante, LOW);
@@ -299,10 +329,12 @@ int buscaLuz() {
     calculaLuminosidadDer();
     diferenciaLum = lumIzq - lumDer;
     ultimaLectura = 0;
-    if(diferenciaLum > 100){
+    if(diferenciaLum > 100 && lumIzq < 600 && lumDer < 600){
       return 1;
-    }else if(diferenciaLum < -100){
+    }else if(diferenciaLum < -100 && lumIzq < 600 && lumDer < 600){
       return 2;
+    }else if(lumIzq < 600 && lumDer < 600){
+      return 4;
     }else{
       return 0;
     }
@@ -368,7 +400,7 @@ void sendGetMotor(int id){
 }
 
 
-void sendPostSensor(int idsensor, float value, float accuracy, long timestamp){
+void sendPostSensor(int idsensor, float value, float accuracy){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
     http.begin(client, SERVER_IP, SERVER_PORT, "/api/putSensorValue", true);
@@ -379,23 +411,22 @@ void sendPostSensor(int idsensor, float value, float accuracy, long timestamp){
     doc["idsensor"] = idsensor;
     doc["value"] = value;
     doc["accuracy"] = accuracy;
-    doc["timestamp"] = timestamp;
 
     String output;
     serializeJson(doc, output);
 
-    int httpCode = http.PUT(output);
+    /*int httpCode = */http.PUT(output);
 
-    Serial.println("Response code: " + httpCode);
+    //Serial.println("Response code: " + httpCode);
 
     String payload = http.getString();
 
-    Serial.println("Resultado: " + payload);
+    //Serial.println("Resultado: " + payload);
   }
 
 }
 
-void sendPostMotor(int idmotor, float value, long timestamp){
+void sendPostMotor(int idmotor, float value){
   if (WiFi.status() == WL_CONNECTED){
     HTTPClient http;
     http.begin(client, SERVER_IP, SERVER_PORT, "/api/putMotorValue", true);
@@ -404,18 +435,17 @@ void sendPostMotor(int idmotor, float value, long timestamp){
     const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
     DynamicJsonDocument doc(capacity);
     doc["value"] = value;
-    doc["timestamp"] = timestamp;
     doc["idmotor"] = idmotor;
 
     String output;
     serializeJson(doc, output);
 
-    int httpCode = http.PUT(output);
+    /*int httpCode = */http.PUT(output);
 
-    Serial.println("Response code: " + httpCode);
+    //Serial.println("Response code: " + httpCode);
 
     String payload = http.getString();
 
-    Serial.println("Resultado: " + payload);
+    //Serial.println("Resultado: " + payload);
   }
 }
