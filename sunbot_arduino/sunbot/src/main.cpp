@@ -43,7 +43,7 @@ const int sensor = A0;
 const int servo = D4;
 
 Servo servo_motor;
-boolean haciaDelante = false;
+
 int distancia = 100;
 int valorSensor = 0;
 int salida = 0;
@@ -53,7 +53,10 @@ int lumIzq = 0;
 int lumDer = 0;
 int distanciaCalc=0;
 int calcLum = 0;
+int humedad = 0;
+
 float diferenciaLum = 0;
+
 long ultimaLectura = 0;
 long t = 0;
 long d = 0;
@@ -64,10 +67,6 @@ void giraIzquierda();
 void giraDerecha();
 void pararMotores();
 void evitaChocar();
-int buscaLuz();
-int calculaDistancia();
-int miraIzquierda();
-int miraDerecha();
 void callback(char* topic, byte* payload, unsigned int length);
 void reconnect();
 void sendGetSensor(int);
@@ -75,6 +74,11 @@ void sendGetMotor(int);
 void sendPostSensor(int,float,float,long);
 void sendPostMotor(int,float,long);
 
+int buscaLuz();
+int calculaDistancia();
+int miraIzquierda();
+int miraDerecha();
+int calculaHumedad();
 
 void setup() {
   Serial.begin(9600);
@@ -131,17 +135,13 @@ void loop(){
     printf("Luz derecha = %i; Luz izquierda=%i, moviendo derecha...\n",lumDer,lumIzq);
     giraDerecha();
   }
-  /*
-  unsigned long now = millis();
-  if (now - lastMsg > 6000) {
-    lastMsg = now;
-    ++value;
-    snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", value);
+  humedad = 0/*calculaHumedad()*/;
+  if (humedad > 700) {
+    snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", humedad);
     Serial.print("Publish message: ");
     Serial.println(msg);
     MQTTclient.publish("sensor", msg);
     }
-    */
 }
 
 //MQTT
@@ -149,40 +149,32 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  for (int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
   }
   Serial.println();
 
-  // Switch on the LED if an 1 was received as first character
+
   if ((char)payload[0] == '1') {
-    digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
-    // but actually the LED is on; this is because
-    // it is active low on the ESP-01)
+    //digitalWrite(BUILTIN_LED, LOW);
   } else {
-    digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
+    //digitalWrite(BUILTIN_LED, HIGH);
   }
 }
 
 void reconnect() {
-  // Loop until we're reconnected
   while (!MQTTclient.connected()) {
     Serial.print("Attempting MQTT connection...");
-    // Create a random client ID
     String clientId = "ESP8266Client-";
     clientId += String(random(0xffff), HEX);
-    // Attempt to connect
     if (MQTTclient.connect(clientId.c_str(),mqtt_username,mqtt_password)) {
       Serial.println("connected");
-      // Once connected, publish an announcement...
       MQTTclient.publish("info", "ESP8266 Conectado",true);
-      // ... and resubscribe
       MQTTclient.subscribe("sensor", 0);
     } else {
       Serial.print("failed, rc=");
       Serial.print(MQTTclient.state());
       Serial.println(" trying again in 5 seconds");
-      // Wait 5 seconds before retrying
       delay(5000);
     }
   }
@@ -208,14 +200,14 @@ void evitaChocar(){
 }
 
 void calculaLuminosidadIzq(){
-  digitalWrite(S1,LOW);
-  digitalWrite(S0,HIGH);
+  digitalWrite(S1,HIGH);
+  digitalWrite(S0,LOW);
   lumIzq = analogRead(sensor);
 }
 
 void calculaLuminosidadDer(){
-  digitalWrite(S1,HIGH);
-  digitalWrite(S0,LOW);
+  digitalWrite(S1,LOW);
+  digitalWrite(S0,HIGH);
   lumDer = analogRead(sensor);
 }
 
@@ -302,10 +294,10 @@ int calculaDistancia(){
 }
 
 int buscaLuz() {
-  calculaLuminosidadIzq();
-  calculaLuminosidadDer();
-  diferenciaLum = lumIzq - lumDer;
   if(ultimaLectura>=500){
+    calculaLuminosidadIzq();
+    calculaLuminosidadDer();
+    diferenciaLum = lumIzq - lumDer;
     ultimaLectura = 0;
     if(diferenciaLum > 100){
       return 1;
