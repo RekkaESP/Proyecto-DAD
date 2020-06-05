@@ -147,7 +147,7 @@ void loop(){
     printf("Luz derecha = %i; Luz izquierda=%i, moviendo derecha...\n",lumDer,lumIzq);
     giraDerecha();
   }else if(calcLum==4){
-    printf("Hay suficiente luz. Parando motores. (Luz derecha = %i; Luz izquierda=%i)",lumDer,lumIzq);
+    printf("Hay suficiente luz. Parando motores. (Luz derecha = %i; Luz izquierda=%i)\n",lumDer,lumIzq);
     pararMotores();
   }
   nowHum = millis();
@@ -192,7 +192,7 @@ void reconnect() {
       Serial.print("failed, rc=");
       Serial.print(MQTTclient.state());
       Serial.println(" trying again in 5 seconds");
-      delay(5000);
+      delay(3000);
     }
   }
 }
@@ -329,12 +329,12 @@ int buscaLuz() {
     calculaLuminosidadDer();
     diferenciaLum = lumIzq - lumDer;
     ultimaLectura = 0;
-    if(diferenciaLum > 100 && lumIzq < 600 && lumDer < 600){
-      return 1;
-    }else if(diferenciaLum < -100 && lumIzq < 600 && lumDer < 600){
-      return 2;
-    }else if(lumIzq < 600 && lumDer < 600){
+    if(lumIzq > 600 && lumDer > 600){
       return 4;
+    }else if(diferenciaLum < -100){
+      return 2;
+    }else if(diferenciaLum > 100){
+      return 1;
     }else{
       return 0;
     }
@@ -415,7 +415,7 @@ void sendPostSensor(int idsensor, float value, float accuracy){
     String output;
     serializeJson(doc, output);
 
-    /*int httpCode = */http.PUT(output);
+    /*int httpCode = */ http.PUT(output);
 
     //Serial.println("Response code: " + httpCode);
 
@@ -440,7 +440,7 @@ void sendPostMotor(int idmotor, float value){
     String output;
     serializeJson(doc, output);
 
-    /*int httpCode = */http.PUT(output);
+    /*int httpCode = */ http.PUT(output);
 
     //Serial.println("Response code: " + httpCode);
 
