@@ -89,7 +89,6 @@ float diferenciaLum = 0;
 long ultimaLumEnviada = 0;
 long ultimaLectura = 0;
 long ultimaHum = 0;
-long ultimoMotor = 0;
 unsigned long nowHum = 0;
 long t = 0;
 long d = 0;
@@ -153,6 +152,12 @@ void loop(){
   delay(100);
   ultimaLectura += 100;
   ultimaLumEnviada += 100;
+  ultimaHum += 100;
+  if(ultimaLumEnviada>=2000){
+    sendPostSensor(idSensorIzq,lumIzq,1);
+    sendPostSensor(idSensorDer,lumDer,1);
+    ultimaLumEnviada = 0;
+  }
   distancia = calculaDistancia();
   calcLum = buscaLuz();
   if(calcLum==LUMIN_LEIDA_RECIENTEMENTE_SUFICIENTE){
@@ -181,17 +186,19 @@ void loop(){
     printf("La luminosidad ha bajado con el tiempo, dando la vuelta...\n");
     giraIzquierda(2000);
   }
-  nowHum = millis();
-  if(nowHum - ultimaHum > 60000){ //6s para probar, debería ser cada 1 min (10000)
+  if(ultimaHum > 25000){ //6s para probar, debería ser cada 1 min (10000)
     humedad = calculaHumedad();
+    sendPostSensor(idSensorHum,humedad,1);
     if (humedad > 700) {
       snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", humedad);
       Serial.print("Publish message: ");
       Serial.println(msg);
       MQTTclient.publish("sensor", msg);
     }
+    ultimaHum = 0;
   }
   printf("Media Luz:%i\n",mediaLuz);
+  printf("ultima:%ld\n",ultimaLumEnviada);
 }
 
 //MQTT
@@ -252,20 +259,12 @@ void calculaLuminosidadIzq(){
   digitalWrite(S1,HIGH);
   digitalWrite(S0,LOW);
   lumIzq = analogRead(sensor);
-  if(ultimaLumEnviada>=5000){
-    sendPostSensor(idSensorIzq,lumIzq,1);
-    ultimaLumEnviada = 0;
-  }
 }
 
 void calculaLuminosidadDer(){
   digitalWrite(S1,LOW);
   digitalWrite(S0,HIGH);
   lumDer = analogRead(sensor);
-  if(ultimaLumEnviada>=5000){
-    sendPostSensor(idSensorDer,lumDer,1);
-    ultimaLumEnviada = 0;
-  }
 }
 
 int calculaHumedad(){
@@ -273,7 +272,6 @@ int calculaHumedad(){
   digitalWrite(S1,LOW);
   digitalWrite(S0,LOW);
   hum = analogRead(sensor);
-  sendPostSensor(idSensorHum,lumIzq,1);
   return hum;
 }
 
@@ -485,8 +483,8 @@ void sendPostSensor(int idsensor, float value, float accuracy){
 
     String output;
     serializeJson(doc, output);
-
     int httpCode = http.PUT(output);
+
 
     Serial.println("Response code: " + httpCode);
 
@@ -518,5 +516,6 @@ void sendPostMotor(int idmotor, float value){
     String payload = http.getString();
 
     //Serial.println("Resultado: " + payload);
+
   }
 }
