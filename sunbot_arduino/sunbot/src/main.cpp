@@ -51,7 +51,26 @@ const int idSensorHum = 2;
 const int idMotorIzq = 0;
 const int idMotorDer = 1;
 
+//Luminosidad suficiente
+const int lumin_sufic = 600;
+
+//Estados del sensor de Luz
+#define LUMIN_IGUAL_IZQ_DER 0
+#define LUMIN_IZQ_MAYOR 1
+#define LUMIN_DER_MAYOR 2
+#define LUMIN_LEIDA_RECIENTEMENTE_SUFICIENTE 3
+#define LUMIN_LEIDA_RECIENTEMENTE_BAJA 4
+#define LUMIN_SUFICIENTE 5
+#define LUMIN_MENOR_QUE_ANTES 6
+
+typedef struct {
+  int array[10];
+  int idActual;
+}HistorialLuz;
+
 Servo servo_motor;
+
+HistorialLuz hist = {{},0};
 
 int distancia = 100;
 int valorSensor = 0;
@@ -63,9 +82,11 @@ int lumDer = 0;
 int distanciaCalc=0;
 int calcLum = 0;
 int humedad = 0;
+int mediaLuz = 0;
 
 float diferenciaLum = 0;
 
+long ultimaLumEnviada = 0;
 long ultimaLectura = 0;
 long ultimaHum = 0;
 long ultimoMotor = 0;
@@ -75,16 +96,18 @@ long d = 0;
 
 void mueveAdelante();
 void mueveAtras();
-void giraIzquierda();
-void giraDerecha();
+void giraIzquierda(int);
+void giraDerecha(int);
 void pararMotores();
 void evitaChocar();
-void callback(char* topic, byte* payload, unsigned int length);
+void callback(char*, byte*, unsigned int);
 void reconnect();
 void sendGetSensor(int);
 void sendGetMotor(int);
 void sendPostSensor(int,float,float);
 void sendPostMotor(int,float);
+void guardarLuz();
+int realizaMediaLuz();
 
 int buscaLuz();
 int calculaDistancia();
@@ -128,38 +151,47 @@ void loop(){
   MQTTclient.loop();
 
   delay(100);
-  ultimaLectura = ultimaLectura+100;
+  ultimaLectura += 100;
+  ultimaLumEnviada += 100;
   distancia = calculaDistancia();
   calcLum = buscaLuz();
-  if (distancia <= 20){
-    printf("Objeto a %icm, evitando chocar...\n",distancia);
-    evitaChocar();
-  }else if(calcLum==3){
-    printf("Lectura de luminosidad realizada recientemente, no se leerá.\n");
-    mueveAdelante();
-  }else if(calcLum==0){
-    printf("No hay peligro y luz igual en ambos lados(Luz derecha = %i; Luz izquierda=%i), moviendo hacia delante... [%ld]\n",lumDer,lumIzq,ultimaLectura);
-    mueveAdelante();
-  }else if(calcLum==1){
-    printf("Luz derecha = %i; Luz izquierda=%i, moviendo izquierda...\n",lumDer,lumIzq);
-    giraIzquierda();
-  }else if(calcLum==2){
-    printf("Luz derecha = %i; Luz izquierda=%i, moviendo derecha...\n",lumDer,lumIzq);
-    giraDerecha();
-  }else if(calcLum==4){
+  if(calcLum==LUMIN_LEIDA_RECIENTEMENTE_SUFICIENTE){
+    printf("Lectura de luminosidad realizada recientemente, no se leerá ni moverá.\n");
+    pararMotores();
+  }else if(calcLum==LUMIN_SUFICIENTE){
     printf("Hay suficiente luz. Parando motores. (Luz derecha = %i; Luz izquierda=%i)\n",lumDer,lumIzq);
     pararMotores();
+    delay(5000);
+  }else if (distancia <= 20){
+    printf("Objeto a %icm, evitando chocar...\n",distancia);
+    evitaChocar();
+  }else if(calcLum==LUMIN_LEIDA_RECIENTEMENTE_BAJA){
+    printf("Lectura de luminosidad realizada recientemente, no se leerá.\n");
+    mueveAdelante();
+  }else if(calcLum==LUMIN_IGUAL_IZQ_DER){
+    printf("No hay peligro y luz igual en ambos lados(Luz derecha = %i; Luz izquierda=%i), moviendo hacia delante... [%ld]\n",lumDer,lumIzq,ultimaLectura);
+    mueveAdelante();
+  }else if(calcLum==LUMIN_IZQ_MAYOR){
+    printf("Luz derecha = %i; Luz izquierda=%i, moviendo izquierda...\n",lumDer,lumIzq);
+    giraIzquierda(1000);
+  }else if(calcLum==LUMIN_DER_MAYOR){
+    printf("Luz derecha = %i; Luz izquierda=%i, moviendo derecha...\n",lumDer,lumIzq);
+    giraDerecha(1000);
+  }else if(calcLum==LUMIN_MENOR_QUE_ANTES){
+    printf("La luminosidad ha bajado con el tiempo, dando la vuelta...\n");
+    giraIzquierda(2000);
   }
   nowHum = millis();
-  if(nowHum - ultimaHum > 6000){ //6s para probar, debería ser cada 1 min (10000)
+  if(nowHum - ultimaHum > 60000){ //6s para probar, debería ser cada 1 min (10000)
     humedad = calculaHumedad();
     if (humedad > 700) {
       snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", humedad);
       Serial.print("Publish message: ");
       Serial.println(msg);
-      //MQTTclient.publish("sensor", msg);
+      MQTTclient.publish("sensor", msg);
     }
   }
+  printf("Media Luz:%i\n",mediaLuz);
 }
 
 //MQTT
@@ -201,18 +233,18 @@ void reconnect() {
 void evitaChocar(){
   if(distancia<10){
     mueveAtras();
-    delay(200);
+    delay(500);
   }
   pararMotores();
   distanciaDer = miraDerecha();
-  delay(100);
+  //delay(100);
   distanciaIzq = miraIzquierda();
   if (distanciaDer >= distanciaIzq){
-    giraIzquierda();
-    delay(200);
+    giraIzquierda(1000);
+    //delay(200);
   }else if (distanciaIzq >= distanciaDer){
-    giraDerecha();
-    delay(200);
+    giraDerecha(1000);
+    //delay(200);
   }
 }
 
@@ -220,14 +252,20 @@ void calculaLuminosidadIzq(){
   digitalWrite(S1,HIGH);
   digitalWrite(S0,LOW);
   lumIzq = analogRead(sensor);
-  sendPostSensor(idSensorIzq,lumIzq,1);
+  if(ultimaLumEnviada>=5000){
+    sendPostSensor(idSensorIzq,lumIzq,1);
+    ultimaLumEnviada = 0;
+  }
 }
 
 void calculaLuminosidadDer(){
   digitalWrite(S1,LOW);
   digitalWrite(S0,HIGH);
   lumDer = analogRead(sensor);
-  sendPostSensor(idSensorDer,lumDer,1);
+  if(ultimaLumEnviada>=5000){
+    sendPostSensor(idSensorDer,lumDer,1);
+    ultimaLumEnviada = 0;
+  }
 }
 
 int calculaHumedad(){
@@ -284,32 +322,32 @@ void mueveAtras(){
   digitalWrite(motorDerAdelante, LOW);
 }
 
-void giraDerecha(){
+void giraDerecha(int t){
   sendPostMotor(idMotorIzq,1);
   sendPostMotor(idMotorDer,-1);
   digitalWrite(motorIzqAdelante, HIGH);
   digitalWrite(motorDerAtras, HIGH);
   digitalWrite(motorIzqAtras, LOW);
   digitalWrite(motorDerAdelante, LOW);
-  delay(1000);
-  digitalWrite(motorIzqAdelante, HIGH);
+  delay(t);
+  /*digitalWrite(motorIzqAdelante, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
   digitalWrite(motorIzqAtras, LOW);
-  digitalWrite(motorDerAtras, LOW);
+  digitalWrite(motorDerAtras, LOW);*/
 }
 
-void giraIzquierda(){
+void giraIzquierda(int t){
   sendPostMotor(idMotorIzq,-1);
   sendPostMotor(idMotorDer,1);
   digitalWrite(motorIzqAtras, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
   digitalWrite(motorIzqAdelante, LOW);
   digitalWrite(motorDerAtras, LOW);
-  delay(1000);
-  digitalWrite(motorIzqAdelante, HIGH);
+  delay(t);
+  /*digitalWrite(motorIzqAdelante, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
   digitalWrite(motorIzqAtras, LOW);
-  digitalWrite(motorDerAtras, LOW);
+  digitalWrite(motorDerAtras, LOW);*/
 }
 
 int calculaDistancia(){
@@ -329,18 +367,51 @@ int buscaLuz() {
     calculaLuminosidadDer();
     diferenciaLum = lumIzq - lumDer;
     ultimaLectura = 0;
-    if(lumIzq > 600 && lumDer > 600){
-      return 4;
+    mediaLuz = realizaMediaLuz();
+    if(lumIzq < mediaLuz-80 && lumDer < mediaLuz-80 && hist.idActual >= 5){
+      guardarLuz();
+      return LUMIN_MENOR_QUE_ANTES;
+    }else if(lumIzq > lumin_sufic && lumDer > lumin_sufic){
+      guardarLuz();
+      return LUMIN_SUFICIENTE;
     }else if(diferenciaLum < -100){
-      return 2;
+      guardarLuz();
+      return LUMIN_DER_MAYOR;
     }else if(diferenciaLum > 100){
-      return 1;
+      guardarLuz();
+      return LUMIN_IZQ_MAYOR;
     }else{
-      return 0;
+      guardarLuz();
+      return LUMIN_IGUAL_IZQ_DER;
     }
-  }else{
-    return 3;
+  }else if(ultimaLectura<500 && lumIzq > lumin_sufic && lumDer > lumin_sufic){
+    guardarLuz();
+    return LUMIN_LEIDA_RECIENTEMENTE_SUFICIENTE;
+  }else {
+    guardarLuz();
+    return LUMIN_LEIDA_RECIENTEMENTE_BAJA;
   }
+}
+
+int realizaMediaLuz(){
+  int media = 0;
+  for(int i=0;i<hist.idActual+1;i++){
+    media+=hist.array[i];
+  }
+  media = media/hist.idActual+1;
+  return media;
+}
+
+void guardarLuz(){
+  if(hist.idActual == 10){
+    hist = {{},0};
+  }
+  if(lumIzq>=lumDer){
+    hist.array[hist.idActual] = lumIzq;
+  }else{
+    hist.array[hist.idActual] = lumDer;
+  }
+  hist.idActual++;
 }
 //API REST
 void sendGetSensor(int id){
@@ -415,9 +486,9 @@ void sendPostSensor(int idsensor, float value, float accuracy){
     String output;
     serializeJson(doc, output);
 
-    /*int httpCode = */ http.PUT(output);
+    int httpCode = http.PUT(output);
 
-    //Serial.println("Response code: " + httpCode);
+    Serial.println("Response code: " + httpCode);
 
     String payload = http.getString();
 
