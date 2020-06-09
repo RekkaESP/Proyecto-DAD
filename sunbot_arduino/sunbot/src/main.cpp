@@ -492,7 +492,6 @@ void sendPostSensor(int idsensor, float value, float accuracy){
 
     //Serial.println("Resultado: " + payload);
   }
-
 }
 
 void sendPostMotor(int idmotor, float value){
