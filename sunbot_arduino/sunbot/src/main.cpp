@@ -154,6 +154,7 @@ void loop(){
   ultimaLumEnviada += 100;
   ultimaHum += 100;
   if(ultimaLumEnviada>=2000){
+    sendPostSensor(0,0,0); //Envío con todo a 0 (el primer envío nunca llega por algún motivo)
     sendPostSensor(idSensorIzq,lumIzq,1);
     sendPostSensor(idSensorDer,lumDer,1);
     ultimaLumEnviada = 0;
@@ -188,6 +189,7 @@ void loop(){
   }
   if(ultimaHum > 25000){ //6s para probar, debería ser cada 1 min (10000)
     humedad = calculaHumedad();
+    sendPostSensor(0,0,0); //Envío con todo a 0 (el primer envío nunca llega por algún motivo)
     sendPostSensor(idSensorHum,humedad,1);
     if (humedad > 700) {
       snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", humedad);
@@ -490,7 +492,7 @@ void sendPostSensor(int idsensor, float value, float accuracy){
 
     String payload = http.getString();
 
-    //Serial.println("Resultado: " + payload);
+    Serial.println("Resultado: " + payload);
   }
 }
 
@@ -508,13 +510,13 @@ void sendPostMotor(int idmotor, float value){
     String output;
     serializeJson(doc, output);
 
-    /*int httpCode = */ http.PUT(output);
+    int httpCode = http.PUT(output);
 
-    //Serial.println("Response code: " + httpCode);
+    Serial.println("Response code: " + httpCode);
 
     String payload = http.getString();
 
-    //Serial.println("Resultado: " + payload);
+    Serial.println("Resultado: " + payload);
 
   }
 }
