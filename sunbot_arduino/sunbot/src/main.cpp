@@ -50,6 +50,7 @@ const int idSensorHum = 2;
 //Id de los Motores
 const int idMotorIzq = 0;
 const int idMotorDer = 1;
+const int idMotores = 3;
 
 //Luminosidad suficiente
 const int lumin_sufic = 600;
@@ -62,6 +63,13 @@ const int lumin_sufic = 600;
 #define LUMIN_LEIDA_RECIENTEMENTE_BAJA 4
 #define LUMIN_SUFICIENTE 5
 #define LUMIN_MENOR_QUE_ANTES 6
+
+//Estados del motor
+#define MOV_ADELANTE 0
+#define MOV_ATRAS 1
+#define MOV_DERECHA 2
+#define MOV_IZQUIERDA 3
+#define MOV_QUIETO 4
 
 typedef struct {
   int array[10];
@@ -83,6 +91,7 @@ int distanciaCalc=0;
 int calcLum = 0;
 int humedad = 0;
 int mediaLuz = 0;
+int ultimoEstadoMotorEnviado = -1;
 
 float diferenciaLum = 0;
 
@@ -167,7 +176,6 @@ void loop(){
   }else if(calcLum==LUMIN_SUFICIENTE){
     printf("Hay suficiente luz. Parando motores. (Luz derecha = %i; Luz izquierda=%i)\n",lumDer,lumIzq);
     pararMotores();
-    delay(5000);
   }else if (distancia <= 20){
     printf("Objeto a %icm, evitando chocar...\n",distancia);
     evitaChocar();
@@ -296,8 +304,13 @@ int miraIzquierda(){
 }
 
 void pararMotores(){
-  sendPostMotor(idMotorIzq,0);
-  sendPostMotor(idMotorDer,0);
+  if(ultimoEstadoMotorEnviado!=MOV_QUIETO){
+    sendPostMotor(0,0);
+    sendPostMotor(idMotores,MOV_QUIETO);
+    ultimoEstadoMotorEnviado = MOV_QUIETO;
+  }
+  //sendPostMotor(idMotorIzq,0);
+  //sendPostMotor(idMotorDer,0);
   digitalWrite(motorDerAdelante, LOW);
   digitalWrite(motorIzqAdelante, LOW);
   digitalWrite(motorDerAtras, LOW);
@@ -305,8 +318,13 @@ void pararMotores(){
 }
 
 void mueveAdelante(){
-  sendPostMotor(idMotorIzq,1);
-  sendPostMotor(idMotorDer,1);
+  if(ultimoEstadoMotorEnviado!=MOV_ADELANTE){
+    sendPostMotor(0,0);
+    sendPostMotor(idMotores,MOV_ADELANTE);
+    ultimoEstadoMotorEnviado = MOV_ADELANTE;
+  }
+  //sendPostMotor(idMotorIzq,1);
+  //sendPostMotor(idMotorDer,1);
   digitalWrite(motorIzqAdelante, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
   digitalWrite(motorIzqAtras, LOW);
@@ -314,8 +332,13 @@ void mueveAdelante(){
 }
 
 void mueveAtras(){
-  sendPostMotor(idMotorIzq,-1);
-  sendPostMotor(idMotorDer,-1);
+  if(ultimoEstadoMotorEnviado!=MOV_ATRAS){
+    sendPostMotor(0,0);
+    sendPostMotor(idMotores,MOV_ATRAS);
+    ultimoEstadoMotorEnviado = MOV_ATRAS;
+  }
+  //sendPostMotor(idMotorIzq,-1);
+  //sendPostMotor(idMotorDer,-1);
   digitalWrite(motorIzqAtras, HIGH);
   digitalWrite(motorDerAtras, HIGH);
   digitalWrite(motorIzqAdelante, LOW);
@@ -323,8 +346,13 @@ void mueveAtras(){
 }
 
 void giraDerecha(int t){
-  sendPostMotor(idMotorIzq,1);
-  sendPostMotor(idMotorDer,-1);
+  if(ultimoEstadoMotorEnviado!=MOV_DERECHA){
+    sendPostMotor(0,0);
+    sendPostMotor(idMotores,MOV_DERECHA);
+    ultimoEstadoMotorEnviado = MOV_DERECHA;
+  }
+  //sendPostMotor(idMotorIzq,1);
+  //sendPostMotor(idMotorDer,-1);
   digitalWrite(motorIzqAdelante, HIGH);
   digitalWrite(motorDerAtras, HIGH);
   digitalWrite(motorIzqAtras, LOW);
@@ -337,8 +365,13 @@ void giraDerecha(int t){
 }
 
 void giraIzquierda(int t){
-  sendPostMotor(idMotorIzq,-1);
-  sendPostMotor(idMotorDer,1);
+  if(ultimoEstadoMotorEnviado!=MOV_IZQUIERDA){
+    sendPostMotor(0,0);
+    sendPostMotor(idMotores,MOV_IZQUIERDA);
+    ultimoEstadoMotorEnviado = MOV_IZQUIERDA;
+  }
+  //sendPostMotor(idMotorIzq,-1);
+  //sendPostMotor(idMotorDer,1);
   digitalWrite(motorIzqAtras, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
   digitalWrite(motorIzqAdelante, LOW);
