@@ -16,10 +16,10 @@ int SERVER_PORT = 8090;
 
 //MQTT
 PubSubClient MQTTclient(client);
-unsigned long lastMsg = 0;
+//unsigned long lastMsg = 0;
 #define MSG_BUFFER_SIZE	(50)
 char msg[MSG_BUFFER_SIZE];
-int value = 0;
+//int value = 0;
 const char* mqtt_server = "192.168.100.46";
 const char* mqtt_username = "mqttbroker";
 const char* mqtt_password = "mqttbrokerpass";
@@ -53,7 +53,7 @@ const int idMotorDer = 1;
 const int idMotores = 3;
 
 //Luminosidad suficiente
-const int lumin_sufic = 600;
+const int lumin_sufic = 500;
 
 //Estados del sensor de Luz
 #define LUMIN_IGUAL_IZQ_DER 0
@@ -81,8 +81,8 @@ Servo servo_motor;
 HistorialLuz hist = {{},0};
 
 int distancia = 100;
-int valorSensor = 0;
-int salida = 0;
+//int valorSensor = 0;
+//int salida = 0;
 int distanciaDer = 0;
 int distanciaIzq = 0;
 int lumIzq = 0;
@@ -98,7 +98,8 @@ float diferenciaLum = 0;
 long ultimaLumEnviada = 0;
 long ultimaLectura = 0;
 long ultimaHum = 0;
-unsigned long nowHum = 0;
+long ultimoMensajeTelegram = 0;
+//unsigned long nowHum = 0;
 long t = 0;
 long d = 0;
 
@@ -115,13 +116,13 @@ void sendGetMotor(int);
 void sendPostSensor(int,float,float);
 void sendPostMotor(int,float);
 void guardarLuz();
-int realizaMediaLuz();
+void calculaHumedad();
 
+int realizaMediaLuz();
 int buscaLuz();
 int calculaDistancia();
 int miraIzquierda();
 int miraDerecha();
-int calculaHumedad();
 
 void setup() {
   Serial.begin(9600);
@@ -162,6 +163,7 @@ void loop(){
   ultimaLectura += 100;
   ultimaLumEnviada += 100;
   ultimaHum += 100;
+  ultimoMensajeTelegram += 100;
   if(ultimaLumEnviada>=2000){
     sendPostSensor(0,0,0); //Envío con todo a 0 (el primer envío nunca llega por algún motivo)
     sendPostSensor(idSensorIzq,lumIzq,1);
@@ -193,13 +195,13 @@ void loop(){
     giraDerecha(1000);
   }else if(calcLum==LUMIN_MENOR_QUE_ANTES){
     printf("La luminosidad ha bajado con el tiempo, dando la vuelta...\n");
-    giraIzquierda(2000);
+    giraIzquierda(3000);
   }
-  if(ultimaHum > 25000){ //6s para probar, debería ser cada 1 min (10000)
-    humedad = calculaHumedad();
-    sendPostSensor(0,0,0); //Envío con todo a 0 (el primer envío nunca llega por algún motivo)
+  if(ultimaHum > 25000){
+    calculaHumedad();
+    sendPostSensor(0,0,0);
     sendPostSensor(idSensorHum,humedad,1);
-    if (humedad > 700) {
+    if (humedad > 900 && ultimoMensajeTelegram > 1800000) { //Cada 30 min = 1.800.000 miliseg
       snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", humedad);
       Serial.print("Publish message: ");
       Serial.println(msg);
@@ -207,8 +209,6 @@ void loop(){
     }
     ultimaHum = 0;
   }
-  printf("Media Luz:%i\n",mediaLuz);
-  printf("ultima:%ld\n",ultimaLumEnviada);
 }
 
 //MQTT
@@ -220,12 +220,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.print((char)payload[i]);
   }
   Serial.println();
-
-  if ((char)payload[0] == '1') {
-    //digitalWrite(BUILTIN_LED, LOW);
-  } else {
-    //digitalWrite(BUILTIN_LED, HIGH);
-  }
 }
 
 void reconnect() {
@@ -257,10 +251,10 @@ void evitaChocar(){
   //delay(100);
   distanciaIzq = miraIzquierda();
   if (distanciaDer >= distanciaIzq){
-    giraIzquierda(1000);
+    giraDerecha(1200);
     //delay(200);
   }else if (distanciaIzq >= distanciaDer){
-    giraDerecha(1000);
+    giraIzquierda(1200);
     //delay(200);
   }
 }
@@ -277,12 +271,10 @@ void calculaLuminosidadDer(){
   lumDer = analogRead(sensor);
 }
 
-int calculaHumedad(){
-  int hum = 0;
+void calculaHumedad(){
   digitalWrite(S1,LOW);
   digitalWrite(S0,LOW);
-  hum = analogRead(sensor);
-  return hum;
+  humedad = analogRead(sensor);
 }
 
 int miraDerecha(){
@@ -391,6 +383,9 @@ int calculaDistancia(){
   digitalWrite(Trigger, LOW);
   t = pulseIn(Echo, HIGH); //obtenemos el ancho del pulso
   d = t/59;             //escalamos el tiempo a una distancia en cm
+  if(d==0){
+    d = 20;
+  }
   return d;
 }
 
