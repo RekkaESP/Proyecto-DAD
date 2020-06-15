@@ -170,6 +170,16 @@ void loop(){
     sendPostSensor(idSensorDer,lumDer,1);
     ultimaLumEnviada = 0;
   }
+  if(ultimaHum > 6000){
+    calculaHumedad();
+    sendPostSensor(0,0,0);
+    sendPostSensor(idSensorHum,humedad,1);
+    if (humedad > 900 && ultimoMensajeTelegram > 1800000) { //Cada 30 min = 1.800.000 miliseg
+      snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", humedad);
+      ultimoMensajeTelegram = 0;
+    }
+    ultimaHum = 0;
+  }
   distancia = calculaDistancia();
   calcLum = buscaLuz();
   if(calcLum==LUMIN_LEIDA_RECIENTEMENTE_SUFICIENTE){
@@ -197,18 +207,7 @@ void loop(){
     printf("La luminosidad ha bajado con el tiempo, dando la vuelta...\n");
     giraIzquierda(3000);
   }
-  if(ultimaHum > 25000){
-    calculaHumedad();
-    sendPostSensor(0,0,0);
-    sendPostSensor(idSensorHum,humedad,1);
-    if (humedad > 900 && ultimoMensajeTelegram > 1800000) { //Cada 30 min = 1.800.000 miliseg
-      snprintf (msg, MSG_BUFFER_SIZE, "[Humedad]%d", humedad);
-      Serial.print("Publish message: ");
-      Serial.println(msg);
-      MQTTclient.publish("sensor", msg);
-    }
-    ultimaHum = 0;
-  }
+
 }
 
 //MQTT
@@ -231,6 +230,7 @@ void reconnect() {
       Serial.println("connected");
       MQTTclient.publish("info", "ESP8266 Conectado",true);
       MQTTclient.subscribe("sensor", 0);
+      MQTTclient.publish("sensor", msg);
     } else {
       Serial.print("failed, rc=");
       Serial.print(MQTTclient.state());
