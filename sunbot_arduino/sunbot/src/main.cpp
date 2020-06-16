@@ -16,10 +16,8 @@ int SERVER_PORT = 8090;
 
 //MQTT
 PubSubClient MQTTclient(client);
-//unsigned long lastMsg = 0;
 #define MSG_BUFFER_SIZE	(50)
 char msg[MSG_BUFFER_SIZE];
-//int value = 0;
 const char* mqtt_server = "192.168.100.46";
 const char* mqtt_username = "mqttbroker";
 const char* mqtt_password = "mqttbrokerpass";
@@ -81,8 +79,6 @@ Servo servo_motor;
 HistorialLuz hist = {{},0};
 
 int distancia = 100;
-//int valorSensor = 0;
-//int salida = 0;
 int distanciaDer = 0;
 int distanciaIzq = 0;
 int lumIzq = 0;
@@ -99,7 +95,6 @@ long ultimaLumEnviada = 0;
 long ultimaLectura = 0;
 long ultimaHum = 0;
 long ultimoMensajeTelegram = 0;
-//unsigned long nowHum = 0;
 long t = 0;
 long d = 0;
 
@@ -237,14 +232,11 @@ void evitaChocar(){
   }
   pararMotores();
   distanciaDer = miraDerecha();
-  //delay(100);
   distanciaIzq = miraIzquierda();
   if (distanciaDer >= distanciaIzq){
     giraDerecha(1200);
-    //delay(200);
   }else if (distanciaIzq >= distanciaDer){
     giraIzquierda(1200);
-    //delay(200);
   }
 }
 
@@ -290,8 +282,6 @@ void pararMotores(){
     sendPostMotor(idMotores,MOV_QUIETO);
     ultimoEstadoMotorEnviado = MOV_QUIETO;
   }
-  //sendPostMotor(idMotorIzq,0);
-  //sendPostMotor(idMotorDer,0);
   digitalWrite(motorDerAdelante, LOW);
   digitalWrite(motorIzqAdelante, LOW);
   digitalWrite(motorDerAtras, LOW);
@@ -304,8 +294,6 @@ void mueveAdelante(){
     sendPostMotor(idMotores,MOV_ADELANTE);
     ultimoEstadoMotorEnviado = MOV_ADELANTE;
   }
-  //sendPostMotor(idMotorIzq,1);
-  //sendPostMotor(idMotorDer,1);
   digitalWrite(motorIzqAdelante, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
   digitalWrite(motorIzqAtras, LOW);
@@ -318,8 +306,6 @@ void mueveAtras(){
     sendPostMotor(idMotores,MOV_ATRAS);
     ultimoEstadoMotorEnviado = MOV_ATRAS;
   }
-  //sendPostMotor(idMotorIzq,-1);
-  //sendPostMotor(idMotorDer,-1);
   digitalWrite(motorIzqAtras, HIGH);
   digitalWrite(motorDerAtras, HIGH);
   digitalWrite(motorIzqAdelante, LOW);
@@ -332,17 +318,11 @@ void giraDerecha(int t){
     sendPostMotor(idMotores,MOV_DERECHA);
     ultimoEstadoMotorEnviado = MOV_DERECHA;
   }
-  //sendPostMotor(idMotorIzq,1);
-  //sendPostMotor(idMotorDer,-1);
   digitalWrite(motorIzqAdelante, HIGH);
   digitalWrite(motorDerAtras, HIGH);
   digitalWrite(motorIzqAtras, LOW);
   digitalWrite(motorDerAdelante, LOW);
   delay(t);
-  /*digitalWrite(motorIzqAdelante, HIGH);
-  digitalWrite(motorDerAdelante, HIGH);
-  digitalWrite(motorIzqAtras, LOW);
-  digitalWrite(motorDerAtras, LOW);*/
 }
 
 void giraIzquierda(int t){
@@ -351,17 +331,11 @@ void giraIzquierda(int t){
     sendPostMotor(idMotores,MOV_IZQUIERDA);
     ultimoEstadoMotorEnviado = MOV_IZQUIERDA;
   }
-  //sendPostMotor(idMotorIzq,-1);
-  //sendPostMotor(idMotorDer,1);
   digitalWrite(motorIzqAtras, HIGH);
   digitalWrite(motorDerAdelante, HIGH);
   digitalWrite(motorIzqAdelante, LOW);
   digitalWrite(motorDerAtras, LOW);
   delay(t);
-  /*digitalWrite(motorIzqAdelante, HIGH);
-  digitalWrite(motorDerAdelante, HIGH);
-  digitalWrite(motorIzqAtras, LOW);
-  digitalWrite(motorDerAtras, LOW);*/
 }
 
 int calculaDistancia(){
