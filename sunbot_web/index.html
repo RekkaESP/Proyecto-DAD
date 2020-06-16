@@ -1,0 +1,67 @@
+<html>
+    <head>
+      <link rel="stylesheet" href="css/style.css">
+        <script type="text/javascript">
+            window.onload = function () {
+                var dataLength = 0;
+                var datahum = [];
+                var datalumi = [];
+                var datalumd = [];
+                $.getJSON("consulta.php", function (result) {
+                    dataLength = result.length;
+                    for (var i = 0; i < dataLength; i++) {
+                        datahum.push({
+                            x: parseInt(result[i].valorxhum),
+                            y: parseInt(result[i].valoryhum)
+                        });
+                        datalumi.push({
+                            x: parseInt(result[i].valorxlumi),
+                            y: parseInt(result[i].valorylumi)
+                        });
+                        datalumd.push({
+                            x: parseInt(result[i].valorxlumd),
+                            y: parseInt(result[i].valorylumd)
+                        });
+                    };
+                    chart.render();
+                });
+                var chart = new CanvasJS.Chart("chartcontainerlum", {
+                    title: {
+                        text: "Lectura de los sensores",
+                        fontFamily: "tahoma"
+                    },
+                    axisX: {
+                        title: "Timestamp",
+                    },
+                    axisY: {
+                        title: "Valor de la lectura",
+                    },
+                    legend: {
+                      horizontalAlign: "center", // left, center ,right
+                      verticalAlign: "top",  // top, center, bottom
+                    },
+                    data: [{type: "line", dataPoints: datalumi, name:"Luz Izquierda", showInLegend: true, xValueType: "dateTime"},
+                    {type: "line", dataPoints: datalumd, name:"Luz Derecha", showInLegend: true, xValueType: "dateTime"},
+                    {type: "line", dataPoints: datahum, showInLegend: true, name:"Humedad", xValueType: "dateTime"},
+                    {type: "line", dataPoints: (datalumi+datalumd)/2,xValueType: "dateTime"}],
+                });
+
+            }
+        </script>
+        <script type="text/javascript" src="js/canvasjs.min.js"></script>
+        <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+    </head>
+    <script type="text/javascript" src="js/jquery-2.2.3.min.js">
+    setInterval(function() {
+    $("#chartcontainerlum").load(location.href+" #chartcontainerlum>*","");
+}, 1000); // seconds to wait, miliseconds
+</script>
+<div id="controles">
+<button onClick="window.location.reload();">Refrescar Tabla</button>
+</div>
+        <div id="chartcontainerlum">
+        </div>
+
+
+    </body>
+</html>
