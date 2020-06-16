@@ -35,9 +35,9 @@ public class TelegramVerticle extends AbstractVerticle{
 									.setChatId(handler.getMessage().getChatId()));
 							chatid.remove(handler.getMessage().getChatId());
 						}
-					} else if (handler.getMessage().getText().toLowerCase().contentEquals("/test")) {	
+					} else if (handler.getMessage().getText().toLowerCase().contentEquals("/help")) {	
 						bot.sendMessage(new SendMessage()
-								.setText("//\\ AVISO: funsiona")
+								.setText("Utiliza /avisa para recibir los avisos de humedad y /noavisa para no recibirlos")
 								.setChatId(handler.getMessage().getChatId()));
 					}
 				}));
