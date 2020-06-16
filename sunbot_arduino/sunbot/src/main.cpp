@@ -109,7 +109,6 @@ void giraIzquierda(int);
 void giraDerecha(int);
 void pararMotores();
 void evitaChocar();
-void callback(char*, byte*, unsigned int);
 void reconnect();
 void sendGetSensor(int);
 void sendGetMotor(int);
@@ -129,7 +128,6 @@ void setup() {
   //WIFI
   WiFi.begin(SSID, PASS);
   MQTTclient.setServer(mqtt_server, 1885);
-  MQTTclient.setCallback(callback);
   Serial.print("Connecting...");
   while (WiFi.status() != WL_CONNECTED){
     delay(500);
@@ -211,15 +209,6 @@ void loop(){
 }
 
 //MQTT
-void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
-  for (unsigned int i = 0; i < length; i++) {
-    Serial.print((char)payload[i]);
-  }
-  Serial.println();
-}
 
 void reconnect() {
   while (!MQTTclient.connected()) {
